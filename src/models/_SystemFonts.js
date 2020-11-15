@@ -9,35 +9,29 @@ import { FontFamily, FontFamilyEntry } from 'models/Fonts'
 class SystemFonts extends EventEmitter {
   constructor() {
     super()
-    this._families = []
-    this._fontPaths = []
+    this._fontStores = {}
   }
-  get families() {
-    return this._families
-  }
-  get fontPaths() {
-    return this._fontPaths
+  get fontStores() {
+    return this._fontStores
   }
   load() {
     this.emit('loading')
     fontManager.getAvailableFonts(fonts => {
       // TODO: What we want to do is actually use chokidar to watch all the font path dirnames.
-      let fontPaths = []
-      let fontFamilies = {}
+      let fontStores = {}
       for (const c of fonts) {
         // Gather root paths.
-        var fontRootPath = path.dirname(c.path)
-        if (!fontPaths.includes(fontRootPath)) {
-          fontPaths.push(fontRootPath)
+        var fontRootStore = path.dirname(c.path)
+        if (!fontStores[fontRootStore]) {
+          fontStores[fontRootStore] = {}
         }
         // Gather families.
-        if (!fontFamilies[c.family]) {
-          fontFamilies[c.family] = new FontFamily(c.family)
+        if (!fontStores[fontRootStore][c.family]) {
+          fontStores[fontRootStore][c.family] = new FontFamily(c.family)
         }
-        fontFamilies[c.family].addEntry(c)
+        fontStores[fontRootStore][c.family].addEntry(c)
       }
-      this._families = fontFamilies
-      this._fontPaths = fontPaths
+      this._fontStores = fontStores
       this.emit('loaded')
     })
   }

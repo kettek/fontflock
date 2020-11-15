@@ -20,7 +20,7 @@ class {
     })
     this.state = {
       awaitingFonts: true,
-      fontsList: [],
+      systemFontStores: {},
       text: 'The slow fat fox waits for the roll20',
       fontSize: 10,
       fontSizeUnits: 'pt',
@@ -39,7 +39,7 @@ class {
     SystemFonts.load()
   }
   onSystemFontsLoaded(e) {
-    this.state.fontsList = [ SystemFonts.families ]
+    this.state.systemFontStores = SystemFonts.fontStores
   }
   async close() {
     // Do cleanup
@@ -135,9 +135,6 @@ style {
     grid-template-columns: auto minmax(0, 1fr);
   }
   .Main__Left {
-    display: grid;
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-columns: minmax(0, 1fr);
   }
   .Main__Right {
     display: grid;
@@ -186,6 +183,50 @@ style {
     background: white;
     font-size: 20em;
   }
+  .SystemFonts {
+    margin: .5em;
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+  }
+  .SystemFonts__Header {
+    color: var(--list-fg);
+    background: var(--list-bg);
+    padding: .5em;
+    margin: .5em;
+  }
+  .SystemFonts__Entries {
+    padding: .5em;
+    padding-top: 0;
+    margin: 0 .5em;
+  }
+  .SystemFonts__Entries__Item {
+  }
+  .SystemFonts__Entries__Item__Header {
+    color: var(--list-fg);
+  }
+
+  .Collections {
+    margin: .5em;
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+  }
+  .Collections__Header {
+    color: var(--list-fg);
+    background: var(--list-bg);
+    padding: .5em;
+    margin: .5em;
+  }
+  .Collections__Entries {
+    padding: .5em;
+    padding-top: 0;
+    margin: 0 .5em;
+  }
+  .Collections__Entries__Item {
+    padding: .25em 0;
+  }
+  .Collections__Entries__Item__Header {
+    color: var(--list-fg);
+  }
 }
 
 Titlebar title='fontflock'
@@ -193,12 +234,19 @@ Titlebar title='fontflock'
     div.Titlebar__Controls__Button -- a button
 div.Main
   div.Main__Left
-    div -- something
-    div
-      div -- Installed
-      div
-        for|fontGroup, fontGroupIndex| of=state.fontsList
-          div -- ${fontGroup}
+    div.SystemFonts
+      header.SystemFonts__Header -- System/Installed
+      div.SystemFonts__Entries
+        for|fontStoreName, fontStore| in=state.systemFontStores
+          div.SystemFonts__Entries__Item
+            div.SystemFonts__Entries__Item__Header -- ${fontStoreName}
+    div.Collections
+      div.Collections__Header -- Collections
+      div.Collections__Entries
+        div.Collections__Entries__Item
+          div.Collections__Entries__Item__Header -- 2020
+        div.Collections__Entries__Item
+          div.Collections__Entries__Item__Header -- 2018
   div.Main__Right
     div.FontSettings
       input value=state.text on-input('setText')
@@ -209,16 +257,15 @@ div.Main
     div.Fonts
       table.Fonts__Table
         tbody
-          for|fontGroup, fontGroupIndex| of=state.fontsList
-            tr class='Fonts__Header'
-              th -- Example Text
-              th -- Info
-              th -- Controls
-            for|fontFamilyName, fontFamily| in=fontGroup
+          tr class='Fonts__Header'
+            th -- Example Text
+            th -- Info
+            th -- Controls
+          for|fontStorePath, fontStore| in=state.systemFontStores
+            for|fontFamilyName, fontFamily| in=fontStore
               tr class='Fonts__FamilyName'
                 th -- ${fontFamilyName}
               for|fontEntry, fontIndex| of=fontFamily.entries
-                $ console.log(fontEntry)
                 tr.FontGroup__Entry key=fontIndex
                   td.FontGroup__Entry__Example style={
                     'font-family': fontFamilyName,
@@ -235,4 +282,3 @@ div.Main
                           td -- ${fontEntry.italic?'i':''}
                   td.FontGroup__Entry__Controls
                     button on-click('revealFont', fontEntry.path) -- reveal
-    
