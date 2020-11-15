@@ -1,0 +1,137 @@
+import { remote } from 'electron'
+
+class {
+  onCreate() {
+    let window = remote.getCurrentWindow()
+    this.state = {
+      maximized: window.isMaximized(),
+      focused: window.isFocused(),
+    }
+    window.on('focus', _ => {
+      this.state.focused = true
+    })
+    window.on('blur', _ => {
+      this.state.focused = false
+    })
+  }
+  onMaximize() {
+    let window = remote.getCurrentWindow()
+    if (window.isMaximized()) {
+      window.unmaximize()
+      this.state.maximized = false
+    } else {
+      window.maximize()
+      this.state.maximized = true
+    }
+  }
+  onMinimize() {
+    let window = remote.getCurrentWindow()
+    window.minimize()
+  }
+  onClose() {
+    let window = remote.getCurrentWindow()
+    window.close()
+  }
+}
+
+style {
+  .Titlebar {
+    height: 32px;
+    background: #323232;
+    color: #8e8e8e;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
+    user-select: none;
+    font-size: 13px;
+  }
+  .Titlebar.-focused {
+    background: #3C3C3C;
+    color: #ccc;
+  }
+  .Titlebar.-menuonly {
+    background: #3C3C3C;
+    color: #ccc;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .Titlebar__Controls {
+    display: grid;
+    grid-template-columns: repeat(3, 46px);
+    height: 100%;
+  }
+  .Titlebar__Controls__Button {
+    grid-row: 1 / span 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+  }
+  .Titlebar__Controls__Button:hover {
+    background: #474747;
+  }
+  .Titlebar.-focused .Titlebar__Controls__Button:hover {
+    background: #505050;
+  }
+  .Titlebar__Controls__Button.-min {
+    grid-column: 1;
+  }
+  .Titlebar__Controls__Button.-max,.Titlebar__Controls__Button.-restore {
+    grid-column: 2;
+  }
+  .Titlebar__Controls__Button.-close {
+    grid-column: 3;
+  }
+  .Titlebar__Controls__Button:hover.-close {
+    color: #fff;
+    background: #D71526;
+  }
+  .Titlebar.-focused .Titlebar__Controls__Button:hover.-close {
+    background: #D71526;
+  }
+  .Titlebar__Dragger {
+    padding: 4px;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .Titlebar__Dragger__Title {
+    font-size: 12px;
+    -webkit-app-region: drag;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .Titlebar__Menu {
+    display: flex;
+    align-items: stretch;
+  }
+  .Titlebar__Menu > * {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 0 .5em;
+    white-space: nowrap;
+  }
+  .Titlebar.-menuonly .Titlebar__Menu {
+  }
+  .Titlebar.-menuonly .Titlebar__Menu > * {
+    flex: initial;
+  }
+}
+
+if(process.platform==='win32')
+  header.Titlebar class=[state.focused?'-focused':null]
+    div.Titlebar__Menu
+      <${input.menu}/>
+    div.Titlebar__Dragger
+      div.Titlebar__Dragger__Title -- fontflock
+    div.Titlebar__Controls
+      div.Titlebar__Controls__Button.-min on-click('onMinimize') -- min
+      div.Titlebar__Controls__Button.-max on-click('onMaximize') -- ${state.maximized?'res':'max'}
+      div.Titlebar__Controls__Button.-close on-click('onClose') -- close
+else
+  header.Titlebar.-menuonly
+    div.Titlebar__Menu
+      <${input.menu}/>

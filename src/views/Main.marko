@@ -1,0 +1,172 @@
+import { ipcRenderer } from 'electron'
+import * as fs from 'fs'
+import * as path from 'path'
+import { remote, shell } from 'electron'
+import * as fontManager from '../../build/fontmanager.node'
+import * as _Config from '../models/_Config'
+
+class {
+  onCreate() {
+    _Config.load({
+      win: {
+        x: 0,
+        y: 0,
+        width: 1280,
+        height: 720,
+        fullscreen: false,
+      },
+    })
+    this.state = {
+      awaitingFonts: true,
+      fontsList: [],
+      text: 'The slow fat fox waits for the roll20',
+      fontSize: 10,
+    }
+
+    // Add hook for app closing.
+    ipcRenderer.on('app-close', _ => {
+      this.close()
+    })
+  }
+  onMount() {
+    fontManager.getAvailableFonts(fonts => {
+      this.state.awaitingFonts = false
+      this.state.fontsList = fonts
+      console.log('first', fonts[0])
+    })
+  }
+  async close() {
+    // Do cleanup
+    // return // return early on failure
+    await _Config.save(true)
+    ipcRenderer.send('closed')
+  }
+  setText(e) {
+    this.state.text = e.target.value
+  }
+  setSize(e) {
+    this.state.fontSize = Number(e.target.value)
+  }
+  revealFont(fontPath) {
+    shell.showItemInFolder(fontPath)
+  }
+}
+
+style {
+  :root {
+    --primary: #51789d;
+    --secondary: #0c1a13;
+    --tertiary: #667e94;
+    --quaternary: #f3e5ec;
+  }
+  @font-face {
+    font-family: 'PT Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../assets/fonts/PTSans-Regular.ttf');
+  }
+  @font-face {
+    font-family: 'PT Sans';
+    font-style: italic;
+    font-weight: 400;
+    src: url('../assets/fonts/PTSans-Italic.ttf');
+  }
+  @font-face {
+    font-family: 'PT Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: url('../assets/fonts/PTSans-Bold.ttf');
+  }
+  @font-face {
+    font-family: 'PT Sans';
+    font-style: italic;
+    font-weight: 700;
+    src: url('../assets/fonts/PTSans-BoldItalic.ttf');
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    height: 100%;
+  }
+  body {
+    background-color: black;
+    color: var(--secondary);
+    margin: 0;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+    font-family: 'PT Sans', sans-serif;
+  }
+  [draggable] {
+    user-select: none;
+  }
+  button {
+    border: 0;
+    border-radius: 0;
+    background: #040404;
+    color: #c2c2c2;
+  }
+  input, select {
+    background: #040404;
+    color: #c2c2c2;
+    border: 1px solid transparent;
+    padding: .25em;
+    margin: .1em;
+  }
+  .Main {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .Main__Left {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .Main__Right {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .Fonts {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+  .FontSettings {
+  }
+  .FontGroup {
+  }
+  .FontGroup__Entry { /* regular, bold, etc. */
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    color: #ccc;
+  }
+  .FontGroup__Entry__Example {
+    color: black;
+    background: white;
+  }
+}
+
+Titlebar title='fontflock'
+  @menu
+    div.Titlebar__Controls__Button -- a button
+div.Main
+  div.Main__Left
+    div -- something
+  div.Main__Right
+    div.FontSettings
+      input value=state.text on-change('setText')
+      input type='number' value=state.fontSize on-change('setSize')
+    div.Fonts
+      for|fontEntry, fontIndex| of=state.fontsList
+        div.FontGroup__Entry key=fontIndex
+          div.FontGroup__Entry__Example style={'font-family': fontEntry.family, 'font-size': state.fontSize+'pt'} -- ${state.text}
+          div.FontGroup__Entry__Name -- ${fontEntry.family} S${fontEntry.style} I${fontEntry.italic} W${fontEntry.weight} M${fontEntry.monospace}
+          div.FontGroup__Entry__Controls
+            button on-click('revealFont', fontEntry.path) -- reveal
+    
