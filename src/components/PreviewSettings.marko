@@ -1,0 +1,30 @@
+class {
+    setText(e) {
+        this.emit('change-text', e)
+    }
+    setSize(e) {
+        this.emit('change-size', e)
+    }
+    setUnits(e) {
+        this.emit('change-units', e)
+    }
+}
+
+style {
+  .PreviewSettings {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: minmax(0, 1fr);
+    padding: .5em;
+    margin: .5em .5em .5em 0;
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+  }
+}
+
+div.PreviewSettings
+  input value=input.previewText on-input('setText')
+  input style='width:3em' type='number' value=input.fontSize on-input('setSize')
+  select on-change('setUnits')
+    option value='pt' selected=input.fontSizeUnits=='pt' -- pt
+    option value='px' selected=input.fontSizeUnits=='px' -- px

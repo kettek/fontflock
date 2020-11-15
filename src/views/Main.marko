@@ -96,6 +96,10 @@ style {
     font-weight: 700;
     src: url('../assets/fonts/PTSans-BoldItalic.ttf');
   }
+  @font-face {
+    font-family: 'Adobe NotDef';
+    src: url('../assets/fonts/adobe-notdef/AND-Regular.ttf');
+  }
   * {
     box-sizing: border-box;
   }
@@ -166,11 +170,6 @@ style {
     position: sticky;
     text-align: left;
     top: 2.75ex;
-  }
-  .FontSettings {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    grid-template-rows: minmax(0, 1fr);
   }
   .FontGroup {
   }
@@ -278,12 +277,7 @@ div.Main
         div.Collections__Entries__Item
           div.Collections__Entries__Item__Header -- Webbie
   div.Main__Right
-    div.FontSettings
-      input value=state.text on-input('setText')
-      input style='width:3em' type='number' value=state.fontSize on-input('setSize')
-      select on-change('setUnits')
-        option value='pt' selected=state.fontSizeUnits=='pt' -- pt
-        option value='px' selected=state.fontSizeUnits=='px' -- px
+    PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
     div.Fonts
       table.Fonts__Table
         tbody
@@ -295,20 +289,21 @@ div.Main
             for|fontFamilyName, fontFamily| in=fontStore
               tr class='Fonts__FamilyName'
                 th -- ${fontFamilyName}
-              for|fontEntry, fontIndex| of=fontFamily.entries
-                tr.FontGroup__Entry key=fontIndex
-                  td.FontGroup__Entry__Example style={
-                    'font-family': fontFamilyName,
-                    'font-size': state.fontSize+state.fontSizeUnits,
-                    'font-weight': fontEntry.weight+'',
-                    'font-style': fontEntry.italic?'italic':'',
-                  }
-                    div style={overflow: 'auto'} -- ${state.text}
-                  td.FontGroup__Entry__Properties
-                    table
-                      tbody
-                        tr
-                          td -- ${fontEntry.weight}
-                          td -- ${fontEntry.italic?'i':''}
-                  td.FontGroup__Entry__Controls
-                    button on-click('revealFont', fontEntry.path) -- reveal
+              if(false)
+                for|fontEntry, fontIndex| of=fontFamily.entries
+                  tr.FontGroup__Entry key=fontIndex
+                    td.FontGroup__Entry__Example style={
+                      'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
+                      'font-size': state.fontSize+state.fontSizeUnits,
+                      'font-weight': fontEntry.weight+'',
+                      'font-style': fontEntry.italic?'italic':'',
+                    }
+                      div style={overflow: 'auto'} -- ${state.text}
+                    td.FontGroup__Entry__Properties
+                      table
+                        tbody
+                          tr
+                            td -- ${fontEntry.weight}
+                            td -- ${fontEntry.italic?'i':''}
+                    td.FontGroup__Entry__Controls
+                      button on-click('revealFont', fontEntry.path) -- reveal
