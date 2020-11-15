@@ -5,6 +5,8 @@ import { remote, shell } from 'electron'
 import * as fontManager from '../../build/fontmanager.node'
 import * as _Config from '../models/_Config'
 
+import SystemFonts from 'models/_SystemFonts'
+
 class {
   onCreate() {
     _Config.load({
@@ -27,13 +29,16 @@ class {
     ipcRenderer.on('app-close', _ => {
       this.close()
     })
+    SystemFonts.on('loaded', this.onSystemFontsLoaded = this.onSystemFontsLoaded.bind(this))
+  }
+  onDestroy() {
+    SystemFonts.off('loaded', this.onSystemFontsLoaded)
   }
   onMount() {
-    fontManager.getAvailableFonts(fonts => {
-      this.state.awaitingFonts = false
-      this.state.fontsList = fonts
-      console.log('first', fonts[0])
-    })
+    SystemFonts.load()
+  }
+  onSystemFontsLoaded(e) {
+    this.state.fontsList = SystemFonts.fonts
   }
   async close() {
     // Do cleanup
@@ -58,6 +63,10 @@ style {
     --secondary: #0c1a13;
     --tertiary: #667e94;
     --quaternary: #f3e5ec;
+    --list-fg: #d3d3d3;
+    --list-bg: #242424;
+    --list2-fg: #c3c3c3;
+    --list2-bg: #141414;
   }
   @font-face {
     font-family: 'PT Sans';
@@ -132,23 +141,32 @@ style {
     grid-template-columns: minmax(0, 1fr);
   }
   .Fonts {
-    display: flex;
-    flex-direction: column;
+    /*display: flex;
+    flex-direction: column;*/
     overflow: auto;
+  }
+  .Fonts__Table {
+    position: relative;
+    border-collapse: collapse;
+  }
+  .Fonts__Header th {
+    background: var(--list-bg);
+    color: var(--list-fg);
+    position: sticky;
+    top: 0;
   }
   .FontSettings {
   }
   .FontGroup {
   }
   .FontGroup__Entry { /* regular, bold, etc. */
-    display: grid;
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    color: #ccc;
+    background: var(--list2-bg);
+    color: var(--list2-fg);
   }
   .FontGroup__Entry__Example {
     color: black;
     background: white;
+    font-size: 20em;
   }
 }
 
@@ -160,13 +178,21 @@ div.Main
     div -- something
   div.Main__Right
     div.FontSettings
-      input value=state.text on-change('setText')
-      input type='number' value=state.fontSize on-change('setSize')
+      input value=state.text on-input('setText')
+      input type='number' value=state.fontSize on-input('setSize')
     div.Fonts
-      for|fontEntry, fontIndex| of=state.fontsList
-        div.FontGroup__Entry key=fontIndex
-          div.FontGroup__Entry__Example style={'font-family': fontEntry.family, 'font-size': state.fontSize+'pt'} -- ${state.text}
-          div.FontGroup__Entry__Name -- ${fontEntry.family} S${fontEntry.style} I${fontEntry.italic} W${fontEntry.weight} M${fontEntry.monospace}
-          div.FontGroup__Entry__Controls
-            button on-click('revealFont', fontEntry.path) -- reveal
+      table.Fonts__Table
+        thead
+          tr class='Fonts__Header'
+            th -- Example Text
+            th -- Info
+            th -- Controls
+        tbody
+          for|fontEntry, fontIndex| of=state.fontsList
+            tr.FontGroup__Entry key=fontIndex
+              td.FontGroup__Entry__Example style={'font-family': fontEntry.family, 'font-size': state.fontSize+'pt'}
+                div style={overflow: 'auto'} -- ${state.text}
+              td.FontGroup__Entry__Name -- ${fontEntry.family} S${fontEntry.style} I${fontEntry.italic} W${fontEntry.weight} M${fontEntry.monospace}
+              td.FontGroup__Entry__Controls
+                button on-click('revealFont', fontEntry.path) -- reveal
     
