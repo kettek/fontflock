@@ -23,6 +23,7 @@ class {
       fontsList: [],
       text: 'The slow fat fox waits for the roll20',
       fontSize: 10,
+      fontSizeUnits: 'pt',
     }
 
     // Add hook for app closing.
@@ -38,7 +39,7 @@ class {
     SystemFonts.load()
   }
   onSystemFontsLoaded(e) {
-    this.state.fontsList = SystemFonts.fonts
+    this.state.fontsList = [ SystemFonts.families ]
   }
   async close() {
     // Do cleanup
@@ -51,6 +52,9 @@ class {
   }
   setSize(e) {
     this.state.fontSize = Number(e.target.value)
+  }
+  setUnits(e) {
+    this.state.fontSizeUnits = e.target.value
   }
   revealFont(fontPath) {
     shell.showItemInFolder(fontPath)
@@ -141,8 +145,9 @@ style {
     grid-template-columns: minmax(0, 1fr);
   }
   .Fonts {
-    /*display: flex;
-    flex-direction: column;*/
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     overflow: auto;
   }
   .Fonts__Table {
@@ -155,7 +160,20 @@ style {
     position: sticky;
     top: 0;
   }
+  .Fonts__FamilyName {
+    background: var(--list2-bg);
+  }
+  .Fonts__FamilyName th {
+    background: var(--list2-bg);
+    color: var(--list2-fg);
+    position: sticky;
+    text-align: left;
+    top: 2.75ex;
+  }
   .FontSettings {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: minmax(0, 1fr);
   }
   .FontGroup {
   }
@@ -179,20 +197,37 @@ div.Main
   div.Main__Right
     div.FontSettings
       input value=state.text on-input('setText')
-      input type='number' value=state.fontSize on-input('setSize')
+      input style='width:3em' type='number' value=state.fontSize on-input('setSize')
+      select on-change('setUnits')
+        option value='pt' selected=state.fontSizeUnits=='pt' -- pt
+        option value='px' selected=state.fontSizeUnits=='px' -- px
     div.Fonts
       table.Fonts__Table
-        thead
-          tr class='Fonts__Header'
-            th -- Example Text
-            th -- Info
-            th -- Controls
         tbody
-          for|fontEntry, fontIndex| of=state.fontsList
-            tr.FontGroup__Entry key=fontIndex
-              td.FontGroup__Entry__Example style={'font-family': fontEntry.family, 'font-size': state.fontSize+'pt'}
-                div style={overflow: 'auto'} -- ${state.text}
-              td.FontGroup__Entry__Name -- ${fontEntry.family} S${fontEntry.style} I${fontEntry.italic} W${fontEntry.weight} M${fontEntry.monospace}
-              td.FontGroup__Entry__Controls
-                button on-click('revealFont', fontEntry.path) -- reveal
+          for|fontGroup, fontGroupIndex| of=state.fontsList
+            tr class='Fonts__Header'
+              th -- Example Text
+              th -- Info
+              th -- Controls
+            for|fontFamilyName, fontFamily| in=fontGroup
+              tr class='Fonts__FamilyName'
+                th -- ${fontFamilyName}
+              for|fontEntry, fontIndex| of=fontFamily.entries
+                $ console.log(fontEntry)
+                tr.FontGroup__Entry key=fontIndex
+                  td.FontGroup__Entry__Example style={
+                    'font-family': fontFamilyName,
+                    'font-size': state.fontSize+state.fontSizeUnits,
+                    'font-weight': fontEntry.weight+'',
+                    'font-style': fontEntry.italic?'italic':'',
+                  }
+                    div style={overflow: 'auto'} -- ${state.text}
+                  td.FontGroup__Entry__Properties
+                    table
+                      tbody
+                        tr
+                          td -- ${fontEntry.weight}
+                          td -- ${fontEntry.italic?'i':''}
+                  td.FontGroup__Entry__Controls
+                    button on-click('revealFont', fontEntry.path) -- reveal
     
