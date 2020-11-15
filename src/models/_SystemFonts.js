@@ -10,9 +10,13 @@ class SystemFonts extends EventEmitter {
   constructor() {
     super()
     this._families = []
+    this._fontPaths = []
   }
   get families() {
     return this._families
+  }
+  get fontPaths() {
+    return this._fontPaths
   }
   load() {
     this.emit('loading')
@@ -33,6 +37,7 @@ class SystemFonts extends EventEmitter {
         fontFamilies[c.family].addEntry(c)
       }
       this._families = fontFamilies
+      this._fontPaths = fontPaths
       this.emit('loaded')
     })
   }
