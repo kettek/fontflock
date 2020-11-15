@@ -205,6 +205,29 @@ style {
     color: var(--list-fg);
   }
 
+  .Libraries {
+    margin: .5em;
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+  }
+  .Libraries__Header {
+    color: var(--list-fg);
+    background: var(--list-bg);
+    padding: .5em;
+    margin: .5em;
+  }
+  .Libraries__Entries {
+    padding: .5em;
+    padding-top: 0;
+    margin: 0 .5em;
+  }
+  .Libraries__Entries__Item {
+    padding: .25em 0;
+  }
+  .Libraries__Entries__Item__Header {
+    color: var(--list-fg);
+  }
+
   .Collections {
     margin: .5em;
     border: 1px solid var(--list-bg);
@@ -240,13 +263,20 @@ div.Main
         for|fontStoreName, fontStore| in=state.systemFontStores
           div.SystemFonts__Entries__Item
             div.SystemFonts__Entries__Item__Header -- ${fontStoreName}
+    div.Libraries
+      div.Libraries__Header -- Libraries
+      div.Libraries__Entries
+        div.Libraries__Entries__Item
+          div.Libraries__Entries__Item__Header -- 2020
+        div.Libraries__Entries__Item
+          div.Libraries__Entries__Item__Header -- 2018
     div.Collections
       div.Collections__Header -- Collections
       div.Collections__Entries
         div.Collections__Entries__Item
-          div.Collections__Entries__Item__Header -- 2020
+          div.Collections__Entries__Item__Header -- Pixel Fonts
         div.Collections__Entries__Item
-          div.Collections__Entries__Item__Header -- 2018
+          div.Collections__Entries__Item__Header -- Webbie
   div.Main__Right
     div.FontSettings
       input value=state.text on-input('setText')
