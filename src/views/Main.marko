@@ -194,6 +194,11 @@ Titlebar title='fontflock'
 div.Main
   div.Main__Left
     div -- something
+    div
+      div -- Installed
+      div
+        for|fontGroup, fontGroupIndex| of=state.fontsList
+          div -- ${fontGroup}
   div.Main__Right
     div.FontSettings
       input value=state.text on-input('setText')
