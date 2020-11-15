@@ -121,17 +121,12 @@ style {
   }
 }
 
-if(process.platform==='win32')
-  header.Titlebar class=[state.focused?'-focused':null]
-    div.Titlebar__Menu
-      <${input.menu}/>
-    div.Titlebar__Dragger
-      div.Titlebar__Dragger__Title -- fontflock
-    div.Titlebar__Controls
-      div.Titlebar__Controls__Button.-min on-click('onMinimize') -- min
-      div.Titlebar__Controls__Button.-max on-click('onMaximize') -- ${state.maximized?'res':'max'}
-      div.Titlebar__Controls__Button.-close on-click('onClose') -- close
-else
-  header.Titlebar.-menuonly
-    div.Titlebar__Menu
-      <${input.menu}/>
+header.Titlebar class=[state.focused?'-focused':null]
+  div.Titlebar__Menu
+    <${input.menu}/>
+  div.Titlebar__Dragger
+    div.Titlebar__Dragger__Title -- fontflock
+  div.Titlebar__Controls
+    div.Titlebar__Controls__Button.-min on-click('onMinimize') -- min
+    div.Titlebar__Controls__Button.-max on-click('onMaximize') -- ${state.maximized?'res':'max'}
+    div.Titlebar__Controls__Button.-close on-click('onClose') -- close
