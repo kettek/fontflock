@@ -28,19 +28,20 @@ class {
       workspace: null,
       isCreating: false,
       isLoading: false,
+      isLoadingSystemFontStores: false,
     }
 
     // Add hook for app closing.
     ipcRenderer.on('app-close', _ => {
       this.close()
     })
-    SystemFonts.on('loaded', this.onSystemFontsLoaded = this.onSystemFontsLoaded.bind(this))
-  }
-  onDestroy() {
-    SystemFonts.off('loaded', this.onSystemFontsLoaded)
   }
   onMount() {
-    SystemFonts.load()
+    this.state.isLoadingSystemFontStores = true
+    ;(async ()=>{
+      this.state.systemFontStores = await SystemFonts.load()
+      this.state.isLoadingSystemFontStores = false
+    })()
     if (_Config.settings.wsPath) {
       (async ()=>{
         this.state.isLoading = true
@@ -53,9 +54,6 @@ class {
         }
       })()
     }
-  }
-  onSystemFontsLoaded(e) {
-    this.state.systemFontStores = SystemFonts.fontStores
   }
   async close() {
     // Do cleanup
@@ -234,28 +232,6 @@ style {
     background: white;
     font-size: 20em;
   }
-  .SystemFonts {
-    margin: .5em;
-    border: 1px solid var(--list-bg);
-    border-radius: .25em;
-  }
-  .SystemFonts__Header {
-    color: var(--list-fg);
-    background: var(--list-bg);
-    padding: .5em;
-    margin: .5em;
-  }
-  .SystemFonts__Entries {
-    padding: .5em;
-    padding-top: 0;
-    margin: 0 .5em;
-  }
-  .SystemFonts__Entries__Item {
-  }
-  .SystemFonts__Entries__Item__Header {
-    color: var(--list-fg);
-  }
-
   .WorkspaceNotifier {
     margin: .5em;
     border: 1px solid var(--list-bg);
@@ -282,12 +258,12 @@ Titlebar title='fontflock'
       div.Titlebar__Controls__Button -- Workspace...
 div.Main
   div.Main__Left
-    div.SystemFonts
-      header.SystemFonts__Header -- System/Installed
-      div.SystemFonts__Entries
-        for|fontStoreName, fontStore| in=state.systemFontStores
-          div.SystemFonts__Entries__Item
-            div.SystemFonts__Entries__Item__Header -- ${fontStoreName}
+    if(state.isLoadingSystemFontStores)
+      div.WorkspaceNotifier
+        div.WorkspaceNotifier__Content
+          div -- Loading System Fonts...
+    else
+      SystemFonts fontStores=state.systemFontStores
     if(state.isLoading)
       div.WorkspaceNotifier
         div.WorkspaceNotifier__Content

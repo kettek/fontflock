@@ -16,23 +16,26 @@ class SystemFonts extends EventEmitter {
   }
   load() {
     this.emit('loading')
-    fontManager.getAvailableFonts(fonts => {
-      // TODO: What we want to do is actually use chokidar to watch all the font path dirnames.
-      let fontStores = {}
-      for (const c of fonts) {
-        // Gather root paths.
-        var fontRootStore = path.dirname(c.path)
-        if (!fontStores[fontRootStore]) {
-          fontStores[fontRootStore] = {}
+    return new Promise((resolve, reject) => {
+      fontManager.getAvailableFonts(fonts => {
+        // TODO: What we want to do is actually use chokidar to watch all the font path dirnames.
+        let fontStores = {}
+        for (const c of fonts) {
+          // Gather root paths.
+          var fontRootStore = path.dirname(c.path)
+          if (!fontStores[fontRootStore]) {
+            fontStores[fontRootStore] = {}
+          }
+          // Gather families.
+          if (!fontStores[fontRootStore][c.family]) {
+            fontStores[fontRootStore][c.family] = new FontFamily(c.family)
+          }
+          fontStores[fontRootStore][c.family].addEntry(c)
         }
-        // Gather families.
-        if (!fontStores[fontRootStore][c.family]) {
-          fontStores[fontRootStore][c.family] = new FontFamily(c.family)
-        }
-        fontStores[fontRootStore][c.family].addEntry(c)
-      }
-      this._fontStores = fontStores
-      this.emit('loaded')
+        this._fontStores = fontStores
+        this.emit('loaded')
+        resolve(fontStores)
+      })
     })
   }
 }
