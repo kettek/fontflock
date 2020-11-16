@@ -1,0 +1,25 @@
+style {
+  .Notification {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+    font-size: 85%;
+  }
+  .Notification__Icon {
+    padding: .5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .Notification_Content {
+    padding: .5em;
+  }
+}
+
+div.Notification
+  div.Notification__Icon
+    Icon icon=input.icon size=4
+  div.Notification__Content
+    <${input.renderBody}/>
