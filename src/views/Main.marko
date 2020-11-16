@@ -6,6 +6,7 @@ import * as fontManager from '../../build/fontmanager.node'
 import * as _Config from '../models/_Config'
 
 import SystemFonts from 'models/_SystemFonts'
+import Workspace from 'models/Workspace'
 
 class {
   onCreate() {
@@ -24,6 +25,9 @@ class {
       text: 'The slow fat fox waits for the roll20',
       fontSize: 10,
       fontSizeUnits: 'pt',
+      workspace: null,
+      isCreating: false,
+      isLoading: false,
     }
 
     // Add hook for app closing.
@@ -37,6 +41,18 @@ class {
   }
   onMount() {
     SystemFonts.load()
+    if (_Config.settings.wsPath) {
+      (async ()=>{
+        this.state.isLoading = true
+        try {
+          await this.loadWorkspace(_Config.settings.wsPath)
+          this.state.isLoading = false
+        } catch (e) {
+          this.state.isLoading = false
+          // TODO: Error notification!
+        }
+      })()
+    }
   }
   onSystemFontsLoaded(e) {
     this.state.systemFontStores = SystemFonts.fontStores
@@ -58,6 +74,41 @@ class {
   }
   revealFont(fontPath) {
     shell.showItemInFolder(fontPath)
+  }
+  showWorkspaceCreator() {
+    this.state.isCreating = true
+  }
+  closeWorkspaceCreator() {
+    this.state.isCreating = false
+  }
+  async openWorkspace() {
+    var targetPath = remote.dialog.showOpenDialogSync({
+      title: 'Open a Workspace',
+      filters: [
+        {
+          name: 'FontFlock Workspace', extensions: ['ffws'],
+        }
+      ],
+    })
+    if (targetPath) {
+      await this.loadWorkspace(targetPath[0])
+    }
+  }
+  async loadWorkspace(wsPath) {
+    let ws = new Workspace(wsPath, {})
+    await ws.load()
+    this.state.workspace = ws
+    _Config.settings.wsPath = wsPath
+  }
+  async createWorkspace(o) {
+    let ws = new Workspace(o.path, o.ws)
+
+    await ws.save(true)
+
+    this.state.workspace = ws
+    _Config.settings.wsPath = o.path
+
+    this.closeWorkspaceCreator()
   }
 }
 
@@ -137,6 +188,7 @@ style {
     display: grid;
     grid-template-rows: minmax(0, 1fr);
     grid-template-columns: auto minmax(0, 1fr);
+    position: relative;
   }
   .Main__Left {
   }
@@ -204,56 +256,30 @@ style {
     color: var(--list-fg);
   }
 
-  .Libraries {
+  .WorkspaceNotifier {
     margin: .5em;
     border: 1px solid var(--list-bg);
     border-radius: .25em;
+    text-align: center;
   }
-  .Libraries__Header {
+  .WorkspaceNotifier__Button {
+    color: #fff;
+    font-weight: bold;
+    font-size: 100%;
+  }
+  .WorkspaceNotifier__Content {
     color: var(--list-fg);
-    background: var(--list-bg);
     padding: .5em;
     margin: .5em;
-  }
-  .Libraries__Entries {
-    padding: .5em;
-    padding-top: 0;
-    margin: 0 .5em;
-  }
-  .Libraries__Entries__Item {
-    padding: .25em 0;
-  }
-  .Libraries__Entries__Item__Header {
-    color: var(--list-fg);
-  }
-
-  .Collections {
-    margin: .5em;
-    border: 1px solid var(--list-bg);
-    border-radius: .25em;
-  }
-  .Collections__Header {
-    color: var(--list-fg);
-    background: var(--list-bg);
-    padding: .5em;
-    margin: .5em;
-  }
-  .Collections__Entries {
-    padding: .5em;
-    padding-top: 0;
-    margin: 0 .5em;
-  }
-  .Collections__Entries__Item {
-    padding: .25em 0;
-  }
-  .Collections__Entries__Item__Header {
-    color: var(--list-fg);
   }
 }
 
 Titlebar title='fontflock'
   @menu
-    div.Titlebar__Controls__Button -- a button
+    if(state.workspace)
+      div.Titlebar__Controls__Button -- ${state.workspace.title}
+    else
+      div.Titlebar__Controls__Button -- Workspace...
 div.Main
   div.Main__Left
     div.SystemFonts
@@ -262,20 +288,19 @@ div.Main
         for|fontStoreName, fontStore| in=state.systemFontStores
           div.SystemFonts__Entries__Item
             div.SystemFonts__Entries__Item__Header -- ${fontStoreName}
-    div.Libraries
-      div.Libraries__Header -- Libraries
-      div.Libraries__Entries
-        div.Libraries__Entries__Item
-          div.Libraries__Entries__Item__Header -- 2020
-        div.Libraries__Entries__Item
-          div.Libraries__Entries__Item__Header -- 2018
-    div.Collections
-      div.Collections__Header -- Collections
-      div.Collections__Entries
-        div.Collections__Entries__Item
-          div.Collections__Entries__Item__Header -- Pixel Fonts
-        div.Collections__Entries__Item
-          div.Collections__Entries__Item__Header -- Webbie
+    if(state.isLoading)
+      div.WorkspaceNotifier
+        div.WorkspaceNotifier__Content
+          div -- Loading...
+    else-if(!state.workspace)
+      div.WorkspaceNotifier
+        div.WorkspaceNotifier__Content
+          button.WorkspaceNotifier__Button on-click('showWorkspaceCreator') -- Create a Workspace
+          button.WorkspaceNotifier__Button on-click('openWorkspace') -- Open a Workspace
+          div -- Workspaces store libraries, collections, and more.
+    else
+      Libraries libraries=state.workspace.libraries
+      Collections collections=state.workspace.collections
   div.Main__Right
     PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
     div.Fonts
@@ -289,21 +314,26 @@ div.Main
             for|fontFamilyName, fontFamily| in=fontStore
               tr class='Fonts__FamilyName'
                 th -- ${fontFamilyName}
-              if(false)
-                for|fontEntry, fontIndex| of=fontFamily.entries
-                  tr.FontGroup__Entry key=fontIndex
-                    td.FontGroup__Entry__Example style={
-                      'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
-                      'font-size': state.fontSize+state.fontSizeUnits,
-                      'font-weight': fontEntry.weight+'',
-                      'font-style': fontEntry.italic?'italic':'',
-                    }
-                      div style={overflow: 'auto'} -- ${state.text}
-                    td.FontGroup__Entry__Properties
-                      table
-                        tbody
-                          tr
-                            td -- ${fontEntry.weight}
-                            td -- ${fontEntry.italic?'i':''}
-                    td.FontGroup__Entry__Controls
-                      button on-click('revealFont', fontEntry.path) -- reveal
+              for|fontEntry, fontIndex| of=fontFamily.entries
+                tr.FontGroup__Entry key=fontIndex
+                  td.FontGroup__Entry__Example style={
+                    'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
+                    'font-size': state.fontSize+state.fontSizeUnits,
+                    'font-weight': fontEntry.weight+'',
+                    'font-style': fontEntry.italic?'italic':'',
+                  }
+                    div style={overflow: 'auto'} -- ${state.text}
+                  td.FontGroup__Entry__Properties
+                    table
+                      tbody
+                        tr
+                          td -- ${fontEntry.weight}
+                          td -- ${fontEntry.italic?'i':''}
+                  td.FontGroup__Entry__Controls
+                    button on-click('revealFont', fontEntry.path) -- reveal
+  if(state.isCreating)
+    FloatingWindow on-close('closeWorkspaceCreator')
+      @title
+        span -- Create a Workspace
+      @body
+        WorkspaceCreator on-close('closeWorkspaceCreator') on-create('createWorkspace')
