@@ -4,6 +4,7 @@ style {
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     border: 1px solid var(--list-bg);
+    color: var(--list-fg);
     border-radius: .25em;
     font-size: 85%;
   }
@@ -18,8 +19,8 @@ style {
   }
 }
 
-div.Notification
+div.Notification style={'border': input.noBorder?'0':null}
   div.Notification__Icon
-    Icon icon=input.icon size=4
+    Icon icon=input.icon size=input.iconSize===undefined?4:input.iconSize
   div.Notification__Content
     <${input.renderBody}/>
