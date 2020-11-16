@@ -24,6 +24,10 @@ class {
     this.state.showAddDialog = false
     this.state.pendingDirectories = []
   }
+  createLibrary(o) {
+    console.log('create libs', o)
+    this.closeAddDialog()
+  }
 }
 
 style {
@@ -83,6 +87,5 @@ if(state.showAddDialog)
     @title
       span -- Add Libraries
     @body
-      div
-        for|folder| of=state.pendingDirectories
-          div -- ${folder}
+      LibraryCreator on-close('closeAddDialog') on-create('createLibrary') directories=state.pendingDirectories
+        
