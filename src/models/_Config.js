@@ -10,7 +10,7 @@ const userData        = path.join(appData, 'fontflock')
 const settingsPath    = path.join(userData, 'settings.yml')
 
 /**
- * Config is a standalone configuration system that supports automatic saving.
+ * Config is a standalone configuration system that supports automatic saving. This is intended for app configuration and not for workspaces.
  */
 class Config {
   constructor() {
