@@ -1,7 +1,29 @@
+import { remote } from 'electron'
+
 class {
-    add() {
-        console.log('do sumfin')
+  onCreate() {
+    this.state = {
+      showAddDialog: false,
+      pendingDirectories: [],
     }
+  }
+  async add() {
+    var targetPaths = remote.dialog.showOpenDialogSync({
+      title: 'Add folders as libraries',
+      properties: [
+        'openDirectory',
+        'multiSelections'
+      ]
+    })
+    if (targetPaths && targetPaths.length > 0) {
+        this.state.pendingDirectories = targetPaths
+        this.state.showAddDialog = true
+    }
+  }
+  closeAddDialog() {
+    this.state.showAddDialog = false
+    this.state.pendingDirectories = []
+  }
 }
 
 style {
@@ -26,6 +48,9 @@ style {
     align-items: center;
     padding: .5em;
   }
+  .Libraries__Info {
+    margin: 0 .5em;
+  }
   .Libraries__Entries {
     padding: .5em;
     padding-top: 0;
@@ -44,7 +69,20 @@ div.Libraries
     span.Libraries__Header__Title -- Libraries
     div.Libraries__Header__Add on-click('add')
       Icon icon='add' size=1
-  div.Libraries__Entries
-    for|library, libraryIndex| of=input.libraries
-      div.Libraries__Entries__Item key=libraryIndex
-        div.Libraries__Entries__Item__Header -- ${library.title}
+  if(input.libraries.length === 0)
+    div.Libraries__Info
+      Notification noBorder icon='info' iconSize=2
+        p -- Add one or more folders as Libraries.
+  else
+      div.Libraries__Entries
+        for|library, libraryIndex| of=input.libraries
+          div.Libraries__Entries__Item key=libraryIndex
+            div.Libraries__Entries__Item__Header -- ${library.title}
+if(state.showAddDialog)
+  FloatingWindow on-close('closeAddDialog')
+    @title
+      span -- Add Libraries
+    @body
+      div
+        for|folder| of=state.pendingDirectories
+          div -- ${folder}
