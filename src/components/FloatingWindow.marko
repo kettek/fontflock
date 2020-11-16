@@ -1,0 +1,67 @@
+class {
+  close() {
+    this.emit('close')
+  }
+}
+
+style {
+  .FloatingWindow__Container {
+    position: absolute;
+    background: rgba(127, 127, 127, 0.5);
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+  .FloatingWindow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    width: 30em;
+    max-height: 80vh;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    background: black;
+  }
+  .FloatingWindow__Titlebar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
+    background: var(--list-bg);
+  }
+  .FloatingWindow__Titlebar__Title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--list-fg);
+  }
+  .FloatingWindow__Titlebar__Controls {
+    font-weight: bold;
+    color: var(--list-fg);
+    min-height: 2em;
+    display: flex;
+  }
+  .FloatingWindow__Titlebar__Controls__Button {
+    padding: .25em;
+    cursor: pointer;
+  }
+  .FloatingWindow__Content {
+    padding: .5em;
+    color: var(--list-fg);
+  }
+}
+
+div.FloatingWindow__Container
+  div.FloatingWindow
+    div.FloatingWindow__Titlebar
+      div.FloatingWindow__Titlebar__Title
+        <${input.title}/>
+      div.FloatingWindow__Titlebar__Controls
+        button.FloatingWindow__Titlebar__Controls__Button on-click('close')
+          Icon icon='remove' size=2
+    div.FloatingWindow__Content
+      <${input.body}/>
