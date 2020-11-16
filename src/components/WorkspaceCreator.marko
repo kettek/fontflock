@@ -1,0 +1,76 @@
+import { remote } from 'electron'
+
+class {
+  onCreate() {
+    this.state = {
+      workspaceTitle: '',
+    }
+  }
+  setTitle(e) {
+    this.state.workspaceTitle = e.target.value
+  }
+  close() {
+    this.emit('close')
+  }
+  create() {
+    var targetPath = remote.dialog.showSaveDialogSync({
+      title: 'Create a Workspace',
+      filters: [
+        {
+          name: 'FontFlock Workspace', extensions: ['ffws'],
+        }
+      ],
+      properties: [
+        'createDirectory',
+        'showOverwriteConfirmation',
+      ]
+    })
+    this.emit('create', {
+      path: targetPath,
+      ws: {
+        title: this.state.workspaceTitle,
+      }
+    })
+  }
+}
+
+style {
+  .WorkspaceCreator {
+  }
+  .WorkspaceCreator__Info {
+    color: #999;
+  }
+  .WorkspaceCreator__Settings {
+    margin: .5em;
+    padding: .5em;
+  }
+  .WorkspaceCreator__Settings__Item {
+  }
+  .WorkspaceCreator__Settings__Item span {
+    font-weight: bold;
+    margin-right: .5em;
+  }
+  .WorkspaceCreator__Controls {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .WorkspaceCreator__Controls__Button {
+    background: var(--list-bg);
+    color: var(--list-fg);
+    padding: .5em;
+    margin-left: .5em;
+  }
+}
+
+div.WorkspaceCreator
+  div.WorkspaceCreator__Info
+    Notification icon='info'
+      p -- A Workspace is a portable configuration file that stores libraries, collections, and settings.
+      p -- Any changes made to a Workspace are automatically saved while you work. The most recently opened Workspace will be restored whenever FontFlock is opened.
+  div.WorkspaceCreator__Settings
+    label.WorkspaceCreator__Settings__Item
+      span -- Title
+      input value=state.workspaceTitle placeholder='My Workspace' on-change('setTitle')
+  div.WorkspaceCreator__Controls
+    button.WorkspaceCreator__Controls__Button on-click('close') -- Cancel
+    button.WorkspaceCreator__Controls__Button on-click('create') -- Save...
