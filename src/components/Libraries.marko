@@ -1,0 +1,50 @@
+class {
+    add() {
+        console.log('do sumfin')
+    }
+}
+
+style {
+  .Libraries {
+    margin: .5em;
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+  }
+  .Libraries__Header {
+    color: var(--list-fg);
+    background: var(--list-bg);
+    margin: .5em;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .Libraries__Header__Title {
+    padding: .5em;
+  }
+  .Libraries__Header__Add {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: .5em;
+  }
+  .Libraries__Entries {
+    padding: .5em;
+    padding-top: 0;
+    margin: 0 .5em;
+  }
+  .Libraries__Entries__Item {
+    padding: .25em 0;
+  }
+  .Libraries__Entries__Item__Header {
+    color: var(--list-fg);
+  }
+}
+
+div.Libraries
+  div.Libraries__Header
+    span.Libraries__Header__Title -- Libraries
+    div.Libraries__Header__Add on-click('add')
+      Icon icon='add' size=1
+  div.Libraries__Entries
+    for|library, libraryIndex| of=input.libraries
+      div.Libraries__Entries__Item key=libraryIndex
+        div.Libraries__Entries__Item__Header -- ${library.title}
