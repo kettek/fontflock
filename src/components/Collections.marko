@@ -1,0 +1,72 @@
+class {
+  onCreate() {
+    this.state = {
+      editTarget: -1,
+    }
+  }
+  add() {
+    let collection = {
+      title: 'untitled collection',
+      entries: [],
+    }
+    this.input.collections.push(collection)
+    this.startEdit(this.input.collections.length-1)
+  }
+  startEdit(index) {
+    this.state.editTarget = index
+  }
+  stopEdit() {
+    this.state.editTarget = -1
+  }
+  setCollectionEntryTitle(index, e) {
+    this.input.collections[index].title = e.target.value
+  }
+}
+
+style {
+  .Collections {
+    margin: .5em;
+    border: 1px solid var(--list-bg);
+    border-radius: .25em;
+  }
+  .Collections__Header {
+    color: var(--list-fg);
+    background: var(--list-bg);
+    margin: .5em;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .Collections__Header__Title {
+    padding: .5em;
+  }
+  .Collections__Header__Add {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: .5em;
+  }
+  .Collections__Entries {
+    padding: .5em;
+    padding-top: 0;
+    margin: 0 .5em;
+  }
+  .Collections__Entries__Item {
+    padding: .25em 0;
+  }
+  .Collections__Entries__Item__Header {
+    color: var(--list-fg);
+  }
+}
+
+div.Collections
+  div.Collections__Header
+    span.Collections__Header__Title -- Collections
+    div.Collections__Header__Add on-click('add')
+      Icon icon='add' size=1
+  div.Collections__Entries
+    for|collection, collectionIndex| of=input.collections
+      div.Collections__Entries__Item key=collectionIndex
+        if(state.editTarget===collectionIndex)
+          input.Collections__Entries__Item__Header value=collection.title on-change('setCollectionEntryTitle', collectionIndex) on-blur('stopEdit')
+        else
+          div.Collections__Entries__Item__Header -- ${collection.title}
