@@ -2,12 +2,17 @@ import path from 'path'
 import fs from 'fs'
 import * as unreson from 'unreson'
 import yaml from 'yaml'
+import EventEmitter from 'events'
+
+import hexoid from 'hexoid'
+const generateID = hexoid()
 
 /**
  * Workspace represents a configuration-file backed storage for library information, collections, and beyond.
  */
-class Workspace {
+class Workspace extends EventEmitter {
   constructor(wsPath, o) {
+    super()
     this._wsPath = wsPath
     this._wsDir = path.dirname(wsPath)
     let data = {
@@ -28,6 +33,7 @@ class Workspace {
 
     this._data.state = data
     this._data.clear()
+    this.emit('loaded')
   }
   get defaults() {
       return {
@@ -50,6 +56,7 @@ class Workspace {
       await fs.promises.mkdir(this._wsDir, { recursive: true, mode: 0o755 })
       await fs.promises.writeFile(this._wsPath, yaml.stringify(this._data._state))
       if (this._pendingSave) clearTimeout(this._pendingSave)
+      this.emit('saved')
     } else {
       this.startPendingSave()
     }
@@ -79,6 +86,37 @@ class Workspace {
    * 
    */
   createCollection(name) {
+  }
+  /**
+   * 
+   */
+  async createLibrary(o) {
+    let library = {
+      ...{
+        title: 'My Library',
+        folder: '',
+        searchDepth: 0,
+        hierarchyDepth: 0,
+        id: generateID(),
+      },
+      ...o,
+    }
+
+    this.libraries.push(library)
+    this.emit('library-create')
+    this.loadLibrary(library.id)
+  }
+  async loadLibrary(id) {
+    let library = this.libraries.find(l=>l.id===id)
+    console.log('load ', library)
+    this.emit('library-load')
+  }
+  async deleteLibrary(id) {
+    let index = this.libraries.findIndex(l=>l.id===id)
+    if (index >= 0) {
+      this.libraries.splice(index, 1)
+      this.emit('library-delete')
+    }
   }
 }
 
