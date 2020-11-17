@@ -1,9 +1,10 @@
 import path from 'path'
-import fs from 'fs'
+import fs, { watch } from 'fs'
 import * as unreson from 'unreson'
 import yaml from 'yaml'
 import EventEmitter from 'events'
 
+import chokidar from 'chokidar'
 import hexoid from 'hexoid'
 const generateID = hexoid()
 
@@ -15,6 +16,7 @@ class Workspace extends EventEmitter {
     super()
     this._wsPath = wsPath
     this._wsDir = path.dirname(wsPath)
+    this._libraryWatchers = {}
     let data = {
       ...this.defaults,
       ...o,
@@ -33,6 +35,12 @@ class Workspace extends EventEmitter {
 
     this._data.state = data
     this._data.clear()
+
+    // Now let's load up our libraries.
+    for (let library of this.libraries) {
+      await this.loadLibrary(library.id)
+    }
+
     this.emit('loaded')
   }
   get defaults() {
@@ -103,17 +111,53 @@ class Workspace extends EventEmitter {
     }
 
     this.libraries.push(library)
-    this.emit('library-create')
+    this.emit('library-create', library.id)
     this.loadLibrary(library.id)
   }
   async loadLibrary(id) {
     let library = this.libraries.find(l=>l.id===id)
-    console.log('load ', library)
-    this.emit('library-load')
+    if (!library) {
+      // TODO: Error
+      return
+    }
+    const watcher = chokidar.watch(`${library.folder}/**/*.{ttf,otf,woff,woff2}`, {
+      depth: library.searchDepth,
+    })
+    watcher.on('add', p => {
+      console.log(`add ${p}`)
+      //this._libraryCollections[library.id].push(p)
+      this.emit('library-change')
+    })
+    watcher.on('change', p => {
+      console.log(`change ${p}`)
+      this.emit('library-change')
+    })
+    watcher.on('unlink', p => {
+      console.log(`unlink ${p}`)
+      //this._libraryCollections = this._libraryCollections.filter(t=>p!==t)
+      this.emit('library-change')
+    })
+    watcher.on('ready', _ => {
+      // Probably best spot.
+      this.emit('library-load', library.id)
+    })
+    this._libraryWatchers[library.id] = watcher
+  }
+  async unloadLibrary(id) {
+    let library = this.libraries.find(l=>l.id===id)
+    if (!library) {
+      // TODO: Error
+      return
+    }
+    if (this._libraryWatchers[library.id]) {
+      await this._libraryWatchers[library.id].close()
+      this.emit('library-unload', library.id)
+    }
   }
   async deleteLibrary(id) {
     let index = this.libraries.findIndex(l=>l.id===id)
     if (index >= 0) {
+      await this.unloadLibrary(id)
       this.libraries.splice(index, 1)
       this.emit('library-delete')
     }
