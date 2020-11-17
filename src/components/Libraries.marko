@@ -28,6 +28,10 @@ class {
     this.emit('create',  o)
     this.closeAddDialog()
   }
+  deleteLibrary(id) {
+    // TODO: confirmation first.
+    this.emit('delete', [id])
+  }
 }
 
 style {
@@ -65,6 +69,13 @@ style {
   }
   .Libraries__Entries__Item__Header {
     color: var(--list-fg);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .Libraries__Entries__Item__Header__Text {
+  }
+  .Libraries__Entries__Item__Header__Delete {
+    color: red;
   }
 }
 
@@ -81,7 +92,9 @@ div.Libraries
       div.Libraries__Entries
         for|library, libraryIndex| of=input.libraries
           div.Libraries__Entries__Item key=libraryIndex
-            div.Libraries__Entries__Item__Header -- ${library.title}
+            div.Libraries__Entries__Item__Header
+              div.Libraries__Entries__Item__Header__Text -- ${library.title}
+              div.Libraries__Entries__Item__Header__Delete on-click('deleteLibrary', library.id) -- x
 if(state.showAddDialog)
   FloatingWindow on-close('closeAddDialog')
     @title
