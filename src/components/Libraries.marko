@@ -25,7 +25,7 @@ class {
     this.state.pendingDirectories = []
   }
   createLibrary(o) {
-    console.log('create libs', o)
+    this.emit('create',  o)
     this.closeAddDialog()
   }
 }
