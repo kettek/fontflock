@@ -95,6 +95,11 @@ class {
   }
   async loadWorkspace(wsPath) {
     let ws = new Workspace(wsPath, {})
+    for (const event of ['library-create', 'library-delete', 'library-load', 'library-unload']) {
+      ws.on(event, () => {
+        this.setStateDirty('workspace')
+      })
+    }
     await ws.load()
     this.state.workspace = ws
     _Config.settings.wsPath = wsPath
@@ -112,6 +117,11 @@ class {
   async createLibraries(o) {
     for (let l of o) {
       this.state.workspace.createLibrary(l)
+    }
+  }
+  async deleteLibraries(ids) {
+    for (let id of ids) {
+      this.state.workspace.deleteLibrary(id)
     }
   }
   onSelectedSystemFontStore(which) {
@@ -296,7 +306,7 @@ div.Main
           button.WorkspaceNotifier__Button on-click('openWorkspace') -- Open a Workspace
           div -- Workspaces store libraries, collections, and more.
     else
-      Libraries libraries=state.workspace.libraries on-create('createLibraries')
+      Libraries libraries=state.workspace.libraries on-create('createLibraries') on-delete('deleteLibraries')
       Collections collections=state.workspace.collections
   div.Main__Right
     PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
