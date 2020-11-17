@@ -1,7 +1,4 @@
-//const EventEmitter = require('events')
-//const { emit } = require('process')
 import path from 'path'
-import chokidar from 'chokidar'
 import * as fontManager from '../../build/fontmanager.node'
 import EventEmitter from 'events'
 import { FontFamily, FontFamilyEntry } from 'models/Fonts'
