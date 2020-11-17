@@ -22,6 +22,7 @@ class {
     this.state = {
       awaitingFonts: true,
       systemFontStores: {},
+      selectedSystemFontStores: [],
       text: 'The slow fat fox waits for the roll20',
       fontSize: 10,
       fontSizeUnits: 'pt',
@@ -107,6 +108,19 @@ class {
     _Config.settings.wsPath = o.path
 
     this.closeWorkspaceCreator()
+  }
+  onSelectedSystemFontStore(which) {
+    if (!this.state.selectedSystemFontStores.includes(which)) {
+      this.state.selectedSystemFontStores.push(which)
+      this.setStateDirty('selectedSystemFontStores')
+    }
+  }
+  onUnselectedSystemFontStore(which) {
+    let index = this.state.selectedSystemFontStores.indexOf(which)
+    if (index >= 0) {
+      this.state.selectedSystemFontStores.splice(index, 1)
+      this.setStateDirty('selectedSystemFontStores')
+    }
   }
 }
 
@@ -265,7 +279,7 @@ div.Main
         div.WorkspaceNotifier__Content
           div -- Loading System Fonts...
     else
-      SystemFonts fontStores=state.systemFontStores
+      SystemFonts fontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores on-select('onSelectedSystemFontStore') on-unselect('onUnselectedSystemFontStore')
     if(state.isLoading)
       div.WorkspaceNotifier
         div.WorkspaceNotifier__Content
@@ -289,26 +303,27 @@ div.Main
             th -- Info
             th -- Controls
           for|fontStorePath, fontStore| in=state.systemFontStores
-            for|fontFamilyName, fontFamily| in=fontStore
-              tr class='Fonts__FamilyName'
-                th -- ${fontFamilyName}
-              for|fontEntry, fontIndex| of=fontFamily.entries
-                tr.FontGroup__Entry key=fontIndex
-                  td.FontGroup__Entry__Example style={
-                    'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
-                    'font-size': state.fontSize+state.fontSizeUnits,
-                    'font-weight': fontEntry.weight+'',
-                    'font-style': fontEntry.italic?'italic':'',
-                  }
-                    div style={overflow: 'auto'} -- ${state.text}
-                  td.FontGroup__Entry__Properties
-                    table
-                      tbody
-                        tr
-                          td -- ${fontEntry.weight}
-                          td -- ${fontEntry.italic?'i':''}
-                  td.FontGroup__Entry__Controls
-                    button on-click('revealFont', fontEntry.path) -- reveal
+            if(state.selectedSystemFontStores.includes(fontStorePath))
+              for|fontFamilyName, fontFamily| in=fontStore
+                tr class='Fonts__FamilyName'
+                  th -- ${fontFamilyName}
+                for|fontEntry, fontIndex| of=fontFamily.entries
+                  tr.FontGroup__Entry key=fontIndex
+                    td.FontGroup__Entry__Example style={
+                      'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
+                      'font-size': state.fontSize+state.fontSizeUnits,
+                      'font-weight': fontEntry.weight+'',
+                      'font-style': fontEntry.italic?'italic':'',
+                    }
+                      div style={overflow: 'auto'} -- ${state.text}
+                    td.FontGroup__Entry__Properties
+                      table
+                        tbody
+                          tr
+                            td -- ${fontEntry.weight}
+                            td -- ${fontEntry.italic?'i':''}
+                    td.FontGroup__Entry__Controls
+                      button on-click('revealFont', fontEntry.path) -- reveal
   if(state.isCreating)
     FloatingWindow on-close('closeWorkspaceCreator')
       @title
