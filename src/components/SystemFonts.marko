@@ -9,6 +9,9 @@ style {
     background: var(--list-bg);
     padding: .5em;
     margin: .5em;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
   .SystemFonts__Entries {
     padding: .5em;
@@ -18,18 +21,35 @@ style {
   .SystemFonts__Entries__Item {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+  .SystemFonts__Entries__Item__Active {
   }
   .SystemFonts__Entries__Item__Header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     color: var(--list-fg);
-    word-break: break-all;
+  }
+  .SystemFonts__Entries__Item__Header__Text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .SystemFonts__Entries__Item__Header__Count {
+    color: #999;
+    font-size: 85%;
   }
 }
 
 div.SystemFonts
-  header.SystemFonts__Header -- System/Installed
+  header.SystemFonts__Header
+    div.SystemFonts__Header__Text -- System/Installed
+    div.SystemFonts__Header__Count -- ${Object.values(input.fontStores).reduce((t,v)=>t+Object.keys(v).length, 0)}
   div.SystemFonts__Entries
     for|fontStoreName, fontStore| in=input.fontStores
       div.SystemFonts__Entries__Item
-        input type='checkbox' checked=input.selectedSystemFontStores.includes(fontStoreName) on-change(e=>component.emit(e.target.checked?'select':'unselect', fontStoreName))
-        div.SystemFonts__Entries__Item__Header -- ${fontStoreName}
+        input.SystemFonts__Entries__Item__Active type='checkbox' checked=input.selectedSystemFontStores.includes(fontStoreName) on-change(e=>component.emit(e.target.checked?'select':'unselect', fontStoreName))
+        div.SystemFonts__Entries__Item__Header
+          div.SystemFonts__Entries__Item__Header__Text -- ${fontStoreName}
+          div.SystemFonts__Entries__Item__Header__Count -- ${Object.keys(fontStore).length}
  
