@@ -35,7 +35,7 @@ class Library extends EventEmitter {
     }
     return `@font-face {
   font-family: "${this.getFamilyID(index)}";
-  src: url("${f.path}");
+  src: url("${f.path}") format("${f.format}");
 }`
   }
   async load() {
@@ -75,17 +75,17 @@ class Library extends EventEmitter {
 class LibraryFile {
   constructor(f) {
     this._path = f
-    this._type = ''
+    this._format = ''
     this._title = ''
     let ext = path.extname(f.toLowerCase())
-    if (ext === 'ttf') {
-      this._type = 'truetype'
-    } else if (ext === 'otf') {
-      this._type = 'opentype'
-    } else if (ext === 'woff') {
-      this._type = 'woff'
+    if (ext === '.ttf') {
+      this._format = 'truetype'
+    } else if (ext === '.otf') {
+      this._format = 'opentype'
+    } else if (ext === '.woff') {
+      this._format = '.woff'
     } else if (ext === 'woff2') {
-      this._type = 'woff2'
+      this._format = '.woff2'
     }
     this._title = path.basename(f)
   }
@@ -95,8 +95,8 @@ class LibraryFile {
   get path() {
     return this._path
   }
-  get type() {
-    return this._type
+  get format() {
+    return this._format
   }
 }
 
