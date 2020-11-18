@@ -77,9 +77,18 @@ style {
   .Libraries__Entries__Item__Header__Count {
     color: #999;
     font-size: 85%;
+    min-width: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .Libraries__Entries__Item__Header__Delete {
-    color: red;
+  .Libraries__Entries__Item__Header__Burger {
+    display: flex;
+    align-items: center;
+    visibility: hidden;
+  }
+  .Libraries__Entries__Item:hover .Libraries__Entries__Item__Header__Burger {
+    visibility: visible;
   }
 }
 
@@ -103,7 +112,12 @@ div.Libraries
                   Icon size=1.4 icon='loading' spin
                 else
                   span -- ${library.files.length}
-              div.Libraries__Entries__Item__Header__Delete on-click('deleteLibrary', library.id) -- x
+              PopupButton hover
+                @button
+                  div.Libraries__Entries__Item__Header__Burger
+                    Icon size=1 icon='burger'
+                @body
+                  div style={cursor: 'pointer'} on-click('deleteLibrary', library.id) -- delete
 if(state.showAddDialog)
   FloatingWindow on-close('closeAddDialog')
     @title
