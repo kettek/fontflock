@@ -9,6 +9,7 @@ class {
       hierarchyDepth: '',
       titles: input.directories.map(v=>path.basename(v)),
       shouldAdd: input.directories.map(v=>true),
+      shouldIgnoreHidden: input.directories.map(v=>true),
     }
   }
   close() {
@@ -24,6 +25,7 @@ class {
         folder: this.input.directories[i],
         searchDepth: this.state.searchDepth||0,
         hierarchyDepth: this.state.hierarchyDepth||0,
+        ignoreHidden: this.state.shouldIgnoreHidden[i],
       }
     }).filter(v=>v!==null))
   }
@@ -40,6 +42,10 @@ class {
   setLibraryAdd(index, e) {
     this.state.shouldAdd[index] = e.target.checked
     this.setStateDirty('shouldAdd')
+  }
+  setIgnoreHidden(index, e) {
+    this.state.shouldIgnoreHidden[index] = e.target.checked
+    this.setStateDirty('shouldIgnoreHidden')
   }
 }
 
@@ -89,6 +95,7 @@ div.LibraryCreator
           th -- Library Title
           th -- &nbsp;
           th -- Target Folder
+          th -- Ignore Hidden
         for|folder, folderIndex| of=input.directories
           tr
             td
@@ -97,6 +104,8 @@ div.LibraryCreator
               input value=state.titles[folderIndex] on-change('setLibraryName', folderIndex)
             td -- >
             td -- ${folder}
+            td
+              input type='checkbox' checked=state.shouldIgnoreHidden[folderIndex] on-change('setIgnoreHidden', folderIndex)
     label.LibraryCreator__Settings__Item
       span -- Search Depth
       input type='number' value=state.searchDepth placeholder='0' on-change('setSearchDepth')
