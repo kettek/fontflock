@@ -70,9 +70,13 @@ style {
   .Libraries__Entries__Item__Header {
     color: var(--list-fg);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
   .Libraries__Entries__Item__Header__Text {
+  }
+  .Libraries__Entries__Item__Header__Count {
+    color: #999;
+    font-size: 85%;
   }
   .Libraries__Entries__Item__Header__Delete {
     color: red;
@@ -94,6 +98,7 @@ div.Libraries
           div.Libraries__Entries__Item key=libraryIndex
             div.Libraries__Entries__Item__Header
               div.Libraries__Entries__Item__Header__Text -- ${library.title}
+              div.Libraries__Entries__Item__Header__Count -- ${library.files.length}
               div.Libraries__Entries__Item__Header__Delete on-click('deleteLibrary', library.id) -- x
 if(state.showAddDialog)
   FloatingWindow on-close('closeAddDialog')
