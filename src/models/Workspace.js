@@ -1,10 +1,11 @@
-import path from 'path'
+import path, { normalize } from 'path'
 import fs, { watch } from 'fs'
 import * as unreson from 'unreson'
 import yaml from 'yaml'
 import EventEmitter from 'events'
 
-import chokidar from 'chokidar'
+import Library from 'models/Library'
+
 import hexoid from 'hexoid'
 const generateID = hexoid()
 
@@ -16,7 +17,7 @@ class Workspace extends EventEmitter {
     super()
     this._wsPath = wsPath
     this._wsDir = path.dirname(wsPath)
-    this._libraryWatchers = {}
+    this._libraries = []      // Libraries are our instances of our underlying workspace library POD.
     let data = {
       ...this.defaults,
       ...o,
@@ -32,13 +33,17 @@ class Workspace extends EventEmitter {
       ...this.defaults,
       ...yaml.parse(fs.readFileSync(this._wsPath, { encoding: 'utf-8'})),
     }
+    // Ensure libraries match our desired.
+    for (let i = 0; i < data.libraries.length; i++) {
+      data.libraries[i] = this.normalizeLibrary(data.libraries[i])
+    }
 
     this._data.state = data
     this._data.clear()
 
-    // Now let's load up our libraries.
-    for (let library of this.libraries) {
-      await this.loadLibrary(library.id)
+    // Now let's create our our libraries POD -> Library data.
+    for (let library of this.librariesData) {
+      await this.initializeLibrary(library)
     }
 
     this.emit('loaded')
@@ -82,6 +87,9 @@ class Workspace extends EventEmitter {
     }, 5000)
   }
   get libraries() {
+    return this._libraries
+  }
+  get librariesData() {
     return this._data.state.libraries
   }
   get collections() {
@@ -95,69 +103,59 @@ class Workspace extends EventEmitter {
    */
   createCollection(name) {
   }
-  /**
-   * 
-   */
-  async createLibrary(o) {
-    let library = {
+  normalizeLibrary(pod) {
+    return {
       ...{
         title: 'My Library',
         folder: '',
         searchDepth: 0,
         hierarchyDepth: 0,
+        ignoreHidden: true,
         id: generateID(),
       },
-      ...o,
+      ...pod
     }
+  }
+  /**
+   * 
+   */
+  async createLibrary(o) {
+    let library = this.normalizeLibrary(o)
 
-    this.libraries.push(library)
+    this.librariesData.push(library)
+    await this.initializeLibrary(library)
     this.emit('library-create', library.id)
-    this.loadLibrary(library.id)
   }
-  async loadLibrary(id) {
-    let library = this.libraries.find(l=>l.id===id)
-    if (!library) {
-      // TODO: Error
-      return
-    }
-    const watcher = chokidar.watch(`${library.folder}/**/*.{ttf,otf,woff,woff2}`, {
-      depth: library.searchDepth,
-    })
-    watcher.on('add', p => {
-      console.log(`add ${p}`)
-      //this._libraryCollections[library.id].push(p)
-      this.emit('library-change')
-    })
-    watcher.on('change', p => {
-      console.log(`change ${p}`)
-      this.emit('library-change')
-    })
-    watcher.on('unlink', p => {
-      console.log(`unlink ${p}`)
-      //this._libraryCollections = this._libraryCollections.filter(t=>p!==t)
-      this.emit('library-change')
-    })
-    watcher.on('ready', _ => {
-      // Probably best spot.
-      this.emit('library-load', library.id)
-    })
-    this._libraryWatchers[library.id] = watcher
+  async initializeLibrary(l) {
+    let lib = new Library(l)
+    this._libraries.push(lib)
+    this.setupLibraryHooks(lib)
+    lib.load() // Guess we don't need to wait
   }
-  async unloadLibrary(id) {
-    let library = this.libraries.find(l=>l.id===id)
-    if (!library) {
-      // TODO: Error
-      return
+  async destroyLibrary(id) {
+    let index = this._libraries.findIndex(l=>l.id===id)
+    if (index >= 0) {
+      this.cleanLibraryHooks(this._libraries[index])
+      await this._libraries[index].destroy()
+      this._libraries.splice(index, 1)
     }
-    if (this._libraryWatchers[library.id]) {
-      await this._libraryWatchers[library.id].close()
-      this.emit('library-unload', library.id)
+  }
+  setupLibraryHooks(lib) {
+    for (const event of ['load', 'change']) {
+      lib.on(event, (e) => {
+        this.emit(`library-${event}`, e)
+      })
+    }
+  }
+  cleanLibraryHooks(lib) {
+    for (const event of ['load', 'change']) {
+      lib.removeAllListeners(event)
     }
   }
   async deleteLibrary(id) {
-    let index = this.libraries.findIndex(l=>l.id===id)
+    let index = this.librariesData.findIndex(l=>l.id===id)
     if (index >= 0) {
-      await this.unloadLibrary(id)
+      await this.destroyLibrary(id)
       this.libraries.splice(index, 1)
       this.emit('library-delete')
     }
