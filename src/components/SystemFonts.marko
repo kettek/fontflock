@@ -43,7 +43,7 @@ style {
 
 div.SystemFonts
   header.SystemFonts__Header
-    div.SystemFonts__Header__Text -- System/Installed
+    div.SystemFonts__Header__Text -- Installed
     div.SystemFonts__Header__Count -- ${Object.values(input.fontStores).reduce((t,v)=>t+Object.keys(v).length, 0)}
   div.SystemFonts__Entries
     for|fontStoreName, fontStore| in=input.fontStores
