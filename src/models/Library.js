@@ -98,6 +98,7 @@ class LibraryFile {
       this._format = '.woff2'
     }
     this._title = path.basename(f)
+    this._title = this._title.slice(0, this._title.length-ext.length)
   }
   get title() {
     return this._title
