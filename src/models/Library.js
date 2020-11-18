@@ -11,6 +11,7 @@ class Library extends EventEmitter {
     this._data = l
     this._files = []
     this._watcher = null
+    this._loaded = false
   }
   async destroy() {
     // Close watcher
@@ -28,6 +29,9 @@ class Library extends EventEmitter {
   get files() {
     return this._files
   }
+  get loaded() {
+    return this._loaded
+  }
   getFamilyID(index) {
     return `${this.id}__${index}`
   }
@@ -42,6 +46,7 @@ class Library extends EventEmitter {
 }`
   }
   async load() {
+    this.emit('loading')
     let ignoredCheck = null
     if (this._data.ignoreHidden) {
       ignoredCheck = p => {
@@ -70,6 +75,7 @@ class Library extends EventEmitter {
     })
     watcher.on('ready', _ => {
       // Probably best spot.
+      this._loaded = true
       this.emit('load', this._data.id)
     })
     this._watcher = watcher

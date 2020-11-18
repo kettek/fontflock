@@ -141,14 +141,14 @@ class Workspace extends EventEmitter {
     }
   }
   setupLibraryHooks(lib) {
-    for (const event of ['load', 'change']) {
+    for (const event of ['loading', 'load', 'change']) {
       lib.on(event, (e) => {
         this.emit(`library-${event}`, e)
       })
     }
   }
   cleanLibraryHooks(lib) {
-    for (const event of ['load', 'change']) {
+    for (const event of ['loading', 'load', 'change']) {
       lib.removeAllListeners(event)
     }
   }
