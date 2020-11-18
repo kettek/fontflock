@@ -1,0 +1,64 @@
+class {
+  onCreate() {
+    this.state = {
+      open: false
+    }
+    this.mouseDown = this.mouseDown.bind(this)
+    this.mouseUp = this.mouseUp.bind(this)
+    this.keyDown = this.keyDown.bind(this)
+  }
+  open() {
+    this.state.open = true
+    window.addEventListener('mousedown', this.mouseDown)
+    window.addEventListener('mouseup', this.mouseUp)
+    window.addEventListener('keydown', this.keyDown)
+  }
+  close(e) {
+    if (!this.getEl('main').contains(e.target)) {
+      this.state.open = false
+      window.removeEventListener('mousedown', this.mouseDown)
+      window.removeEventListener('mouseup', this.mouseUp)
+      window.removeEventListener('keydown', this.keyDown)
+    }
+  }
+  mouseDown(e) {
+    this.close(e)
+  }
+  mouseUp(e) {
+    this.close(e)
+  }
+  keyDown(e) {
+    this.close(e)
+  }
+}
+
+style {
+  .PopupButton {
+    position: relative;
+    display: flex;
+  }
+  .PopupButton__Button {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .PopupButton.-open .PopupButton__Popup {
+    display: block;
+  }
+  .PopupButton__Popup {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    display: none;
+    padding: .5em;
+    background: var(--list-bg);
+    box-shadow: 0 .1em .3em black;
+    z-index: 1000;
+  }
+}
+
+div.PopupButton key='main' class=[state.open?'-open':null, input.hover?'-hidden':null]
+  div.PopupButton__Button key='button' on-click('open')
+    <${input.button}/>
+  div.PopupButton__Popup
+    <${input.body}/>
