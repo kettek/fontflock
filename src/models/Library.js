@@ -33,7 +33,11 @@ class Library extends EventEmitter {
     return this._loaded
   }
   getFamilyID(index) {
-    return `${this.id}__${index}`
+    let f = this.files[index]
+    if (!f) {
+      return ""
+    }
+    return `${this.id}__${f.path}`
   }
   getCSS(index) {
     let f = this.files[index]
