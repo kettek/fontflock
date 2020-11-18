@@ -8,8 +8,22 @@ style {
     width: 100%;
     height: 100%;
   }
+  @keyframes Icon-spin {
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
+  }
+  .Icon.-spin {
+    animation-duration: 2s;
+    animation-name: Icon-spin;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
 }
 
-div.Icon style={width: input.size?input.size+'em':null, height:input.size?input.size+'em':null}
+div.Icon style={width: input.size?input.size+'em':null, height:input.size?input.size+'em':null} class=[input.spin?'-spin':null]
   svg
     use href=`assets/icons.svg#`+input.icon
