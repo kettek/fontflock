@@ -156,7 +156,7 @@ class Workspace extends EventEmitter {
     let index = this.librariesData.findIndex(l=>l.id===id)
     if (index >= 0) {
       await this.destroyLibrary(id)
-      this.libraries.splice(index, 1)
+      this.librariesData.splice(index, 1)
       this.emit('library-delete')
     }
   }
