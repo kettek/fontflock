@@ -16,6 +16,9 @@ class Library extends EventEmitter {
     // Close watcher
     await this._watcher.close()
   }
+  get folder() {
+    return this._data.folder
+  }
   get id() {
     return this._data.id
   }
@@ -35,7 +38,7 @@ class Library extends EventEmitter {
     }
     return `@font-face {
   font-family: "${this.getFamilyID(index)}";
-  src: url("${f.path}") format("${f.format}");
+  src: url("${this.folder.replace(/\\/g, '/')+'/'+f.path}") format("${f.format}");
 }`
   }
   async load() {
@@ -45,7 +48,8 @@ class Library extends EventEmitter {
         return /(^[.#]|(?:__|~)$)/.test(path.basename(p))
       }
     }
-    const watcher = chokidar.watch(`${this._data.folder}/**/*.{ttf,otf,woff,woff2}`, {
+    const watcher = chokidar.watch(`**/*.{ttf,otf,woff,woff2}`, {
+      cwd: this._data.folder,
       depth: this._data.searchDepth,
       ignored: ignoredCheck,
     })
