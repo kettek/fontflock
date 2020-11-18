@@ -47,16 +47,19 @@ class Library extends EventEmitter {
   }
   async load() {
     this.emit('loading')
-    let ignoredCheck = null
-    if (this._data.ignoreHidden) {
-      ignoredCheck = p => {
-        return /(^[.#]|(?:__|~)$)/.test(path.basename(p))
-      }
-    }
     const watcher = chokidar.watch(`**/*.{ttf,otf,woff,woff2}`, {
       cwd: this._data.folder,
       depth: this._data.searchDepth,
-      ignored: ignoredCheck,
+      ignored: p => {
+        if (this._data.ignoreHidden && /(^[.#]|(?:__|~)$)/.test(path.basename(p))) {
+          return true
+        }
+        // Filter out any directores that we should always ignore.
+        if (p.includes('__MACOSX')) {
+          return true
+        }
+        return false
+      },
     })
     watcher.on('add', p => {
       this._files.push(new LibraryFile(p.replace(/\\/g, '/')))
