@@ -34,6 +34,8 @@ class {
       isLoadingSystemFontStores: false,
       librariesUpdate: 0,
       collectionsUpdate: 0,
+      checkFontInView: 0,
+      loadedEntries: {},
     }
 
     // Add hook for app closing.
@@ -141,6 +143,21 @@ class {
       this.state.selectedSystemFontStores.splice(index, 1)
       this.setStateDirty('selectedSystemFontStores')
     }
+  }
+  handleFontsScroll() {
+    this.setStateDirty('checkFontInView')
+  }
+  isEntryInView(key) {
+    let el = this.getEl(key)
+    if (!el) return false
+    let container = this.getEl('Fonts')
+
+    let rect = el.getBoundingClientRect()
+    if (rect.top >= container.scrollTop - container.offsetHeight*2 && rect.top <= container.scrollTop + container.offsetHeight*2) {
+      this.state.loadedEntries[key] = true
+      return true
+    }
+    return false
   }
 }
 
@@ -315,7 +332,7 @@ div.Main
       Collections collections=state.workspace.collections update=state.collectionsUpdate
   div.Main__Right
     PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
-    div.Fonts
+    div.Fonts key='Fonts' on-scroll('handleFontsScroll')
       table.Fonts__Table
         tbody
           tr class='Fonts__Header'
@@ -328,14 +345,23 @@ div.Main
                 tr class='Fonts__FamilyName'
                   th -- ${fontFamilyName}
                 for|fontEntry, fontIndex| of=fontFamily.entries
-                  tr.FontGroup__Entry key=fontIndex
-                    td.FontGroup__Entry__Example style={
-                      'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
-                      'font-size': state.fontSize+state.fontSizeUnits,
-                      'font-weight': fontEntry.weight+'',
-                      'font-style': fontEntry.italic?'italic':'',
-                    }
-                      div style={overflow: 'auto'} -- ${state.text}
+                  tr.FontGroup__Entry key=`${fontStorePath}-${fontFamilyName}-${fontIndex}`
+                    if(state.loadedEntries[`${fontStorePath}-${fontFamilyName}-${fontIndex}`] || component.isEntryInView(`${fontStorePath}-${fontFamilyName}-${fontIndex}`))
+                      td.FontGroup__Entry__Example style={
+                        'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
+                        'font-size': state.fontSize+state.fontSizeUnits,
+                        'font-weight': fontEntry.weight+'',
+                        'font-style': fontEntry.italic?'italic':'',
+                      }
+                        div style={overflow: 'auto'} -- ${state.text}
+                    else
+                      td.FontGroup__Entry__Example style={
+                        'font-family': `"Adobe NotDef"`,
+                        'font-size': state.fontSize+state.fontSizeUnits,
+                        'font-weight': fontEntry.weight+'',
+                        'font-style': fontEntry.italic?'italic':'',
+                      }
+                        div style={overflow: 'auto'} -- ${state.text}
                     td.FontGroup__Entry__Properties
                       table
                         tbody
@@ -350,13 +376,20 @@ div.Main
             for|font, fontIndex| of=library.files
               tr class='Fonts__FamilyName'
                 th -- ${font.title}
-              tr.FontGroup__Entry key=fontIndex
-                style -- $!{library.getCSS(fontIndex)}
-                td.FontGroup__Entry__Example style={
-                  'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
-                  'font-size': state.fontSize+state.fontSizeUnits,
-                }
-                  div style={overflow: 'auto'} -- ${state.text}
+              tr.FontGroup__Entry key=`${libraryIndex}-${fontIndex}` checkFontInView
+                if(state.loadedEntries[`${libraryIndex}-${fontIndex}`] || component.isEntryInView(`${libraryIndex}-${fontIndex}`))
+                  style -- $!{library.getCSS(fontIndex)}
+                  td.FontGroup__Entry__Example style={
+                    'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
+                    'font-size': state.fontSize+state.fontSizeUnits,
+                  }
+                    div style={overflow: 'auto'} -- ${state.text}
+                else
+                  td.FontGroup__Entry__Example style={
+                    'font-family': `"Adobe NotDef"`,
+                    'font-size': state.fontSize+state.fontSizeUnits,
+                  }
+                    div style={overflow: 'auto'} -- ${state.text}
   if(state.isCreating)
     FloatingWindow on-close('closeWorkspaceCreator')
       @title
