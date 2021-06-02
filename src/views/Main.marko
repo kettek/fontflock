@@ -36,6 +36,9 @@ class {
       collectionsUpdate: 0,
       checkFontInView: 0,
       loadedEntries: {},
+      currentPageIndex: 0,
+      totalPages: 0,
+      entriesPerPage: 20,
     }
 
     // Add hook for app closing.
@@ -159,6 +162,23 @@ class {
     }
     return false
   }
+  setPage(index=0) {
+    this.state.currentPageIndex = index
+  }
+  getPageCount() {
+    let total = 0
+    for (let [fontStorePath, fontStore] of Object.entries(this.state.systemFontStores)) {
+      if (!this.state.selectedSystemFontStores.includes(fontStorePath)) continue
+      for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
+        for (let entry of fontFamily.entries) {
+          total++
+        }
+      }
+    }
+    let pages = Math.ceil(total / this.state.entriesPerPage)
+    console.log(pages)
+    return pages
+  }
 }
 
 style {
@@ -245,7 +265,7 @@ style {
   }
   .Main__Right {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-columns: minmax(0, 1fr);
   }
   .Fonts {
@@ -301,7 +321,56 @@ style {
     padding: .5em;
     margin: .5em;
   }
+  .Pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .Pages__Item {
+    background: var(--list-bg);
+    color: var(--list-fg);
+    cursor: pointer;
+    padding: .25em;
+    margin: .25em;
+    min-width: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .Pages__Item.-selected {
+    background: var(--list-fg);
+    color: var(--list-bg);
+    cursor: auto;
+  }
 }
+
+macro|{fontEntry, fontIndex, fontStorePath, fontFamilyName}| name="FontEntry"
+  tr.FontGroup__Entry key=`${fontStorePath}-${fontFamilyName}-${fontIndex}`
+    if(state.loadedEntries[`${fontStorePath}-${fontFamilyName}-${fontIndex}`] || component.isEntryInView(`${fontStorePath}-${fontFamilyName}-${fontIndex}`))
+      td.FontGroup__Entry__Example style={
+        'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
+        'font-size': state.fontSize+state.fontSizeUnits,
+        'font-weight': fontEntry.weight+'',
+        'font-style': fontEntry.italic?'italic':'',
+      }
+        div style={overflow: 'auto'} -- ${state.text}
+    else
+      td.FontGroup__Entry__Example style={
+        'font-family': `"Adobe NotDef"`,
+        'font-size': state.fontSize+state.fontSizeUnits,
+        'font-weight': fontEntry.weight+'',
+        'font-style': fontEntry.italic?'italic':'',
+      }
+        div style={overflow: 'auto'} -- ${state.text}
+    td.FontGroup__Entry__Properties
+      table
+        tbody
+          tr
+            td -- ${fontEntry.weight}
+            td -- ${fontEntry.italic?'i':''}
+    td.FontGroup__Entry__Controls
+      button on-click('revealFont', fontEntry.path) -- reveal
 
 Titlebar title='fontflock'
   @menu
@@ -344,32 +413,12 @@ div.Main
               for|fontFamilyName, fontFamily| in=fontStore
                 tr class='Fonts__FamilyName'
                   th -- ${fontFamilyName}
-                for|fontEntry, fontIndex| of=fontFamily.entries
-                  tr.FontGroup__Entry key=`${fontStorePath}-${fontFamilyName}-${fontIndex}`
-                    if(state.loadedEntries[`${fontStorePath}-${fontFamilyName}-${fontIndex}`] || component.isEntryInView(`${fontStorePath}-${fontFamilyName}-${fontIndex}`))
-                      td.FontGroup__Entry__Example style={
-                        'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
-                        'font-size': state.fontSize+state.fontSizeUnits,
-                        'font-weight': fontEntry.weight+'',
-                        'font-style': fontEntry.italic?'italic':'',
-                      }
-                        div style={overflow: 'auto'} -- ${state.text}
-                    else
-                      td.FontGroup__Entry__Example style={
-                        'font-family': `"Adobe NotDef"`,
-                        'font-size': state.fontSize+state.fontSizeUnits,
-                        'font-weight': fontEntry.weight+'',
-                        'font-style': fontEntry.italic?'italic':'',
-                      }
-                        div style={overflow: 'auto'} -- ${state.text}
-                    td.FontGroup__Entry__Properties
-                      table
-                        tbody
-                          tr
-                            td -- ${fontEntry.weight}
-                            td -- ${fontEntry.italic?'i':''}
-                    td.FontGroup__Entry__Controls
-                      button on-click('revealFont', fontEntry.path) -- reveal
+                if(true)
+                  $ let [fontEntry, fontIndex] = fontFamily.nearest()
+                  FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
+                else 
+                  for|fontEntry, fontIndex| of=fontFamily.entries
+                    FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
       table.Fonts__Table
         if(state.workspace)
           for|library, libraryIndex| of=state.workspace.libraries
@@ -390,6 +439,10 @@ div.Main
                     'font-size': state.fontSize+state.fontSizeUnits,
                   }
                     div style={overflow: 'auto'} -- ${state.text}
+    div.Pages
+      for|pageIndex| from=0 to=component.getPageCount() step=1
+        div.Pages__Item class={'-selected':pageIndex===state.currentPageIndex} on-click('setPage', pageIndex)
+          span -- ${pageIndex}
   if(state.isCreating)
     FloatingWindow on-close('closeWorkspaceCreator')
       @title
