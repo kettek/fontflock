@@ -10,6 +10,9 @@ class FontFamily {
   get entries() {
     return this._entries
   }
+  nearest({weight=400, italic=false, monospace=false}={}) {
+    return [this._entries[0], 0]
+  }
 }
 
 class FontFamilyEntry {
