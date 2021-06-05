@@ -36,9 +36,9 @@ class {
       collectionsUpdate: 0,
       checkFontInView: 0,
       loadedEntries: {},
-      currentPageIndex: 0,
+      currentPageIndex: 1,
       totalPages: 0,
-      entriesPerPage: 20,
+      entriesPerPage: 100,
     }
 
     // Add hook for app closing.
@@ -170,14 +170,24 @@ class {
     for (let [fontStorePath, fontStore] of Object.entries(this.state.systemFontStores)) {
       if (!this.state.selectedSystemFontStores.includes(fontStorePath)) continue
       for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
-        for (let entry of fontFamily.entries) {
+        //for (let entry of fontFamily.entries) {
           total++
-        }
+        //}
       }
     }
     let pages = Math.ceil(total / this.state.entriesPerPage)
-    console.log(pages)
     return pages
+  }
+  getPageRange(index=0) {
+    index--
+    let aggregate = []
+    for (let [fontStorePath, fontStore] of Object.entries(this.state.systemFontStores)) {
+      if (!this.state.selectedSystemFontStores.includes(fontStorePath)) continue
+      for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
+        aggregate.push([fontStorePath, fontFamilyName, fontFamily])
+      }
+    }
+    return aggregate.slice(index*this.state.entriesPerPage, index*this.state.entriesPerPage+this.state.entriesPerPage)
   }
 }
 
@@ -408,17 +418,16 @@ div.Main
             th -- Example Text
             th -- Info
             th -- Controls
-          for|fontStorePath, fontStore| in=state.systemFontStores
-            if(state.selectedSystemFontStores.includes(fontStorePath))
-              for|fontFamilyName, fontFamily| in=fontStore
-                tr class='Fonts__FamilyName'
-                  th -- ${fontFamilyName}
-                if(true)
-                  $ let [fontEntry, fontIndex] = fontFamily.nearest()
-                  FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
-                else 
-                  for|fontEntry, fontIndex| of=fontFamily.entries
-                    FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
+          for|tuple| of=component.getPageRange(state.currentPageIndex)
+            $ let fontStorePath = tuple[0], fontFamilyName = tuple[1], fontFamily = tuple[2]
+            tr class='Fonts__FamilyName'
+              th -- ${fontFamilyName}
+            if(true)
+              $ let [fontEntry, fontIndex] = fontFamily.nearest()
+              FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
+            else 
+              for|fontEntry, fontIndex| of=fontFamily.entries
+                FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
       table.Fonts__Table
         if(state.workspace)
           for|library, libraryIndex| of=state.workspace.libraries
@@ -440,7 +449,7 @@ div.Main
                   }
                     div style={overflow: 'auto'} -- ${state.text}
     div.Pages
-      for|pageIndex| from=0 to=component.getPageCount() step=1
+      for|pageIndex| from=1 to=component.getPageCount() step=1
         div.Pages__Item class={'-selected':pageIndex===state.currentPageIndex} on-click('setPage', pageIndex)
           span -- ${pageIndex}
   if(state.isCreating)
