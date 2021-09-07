@@ -39,6 +39,13 @@ class Library extends EventEmitter {
     }
     return `${this.id}__${f.path}`
   }
+  getFontFaceCSS(index) {
+    let f = this.files[index]
+    if (!f) {
+      return ""
+    }
+    return `url("${this.folder.replace(/\\/g, '/')+'/'+f.path}") format("${f.format}")`
+  }
   getCSS(index) {
     let f = this.files[index]
     if (!f) {
@@ -100,9 +107,9 @@ class LibraryFile {
     } else if (ext === '.otf') {
       this._format = 'opentype'
     } else if (ext === '.woff') {
-      this._format = '.woff'
+      this._format = 'woff'
     } else if (ext === 'woff2') {
-      this._format = '.woff2'
+      this._format = 'woff2'
     }
     this._title = path.basename(f)
     this._title = this._title.slice(0, this._title.length-ext.length)
