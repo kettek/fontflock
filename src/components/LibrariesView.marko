@@ -107,7 +107,7 @@ div.LibrariesView
                 th.FontGroup__Title
                   span.FontGroup__Title__Font -- ${font.title}
                   span.FontGroup__Title__Library -- ${library.title}
-              tr.FontGroup__Entry id=fontKey key=fontKey checkFontInView
+              tr.FontGroup__Entry key=fontKey checkFontInView
                 if(state.loadedEntries[fontKey] || component.isEntryInView(fontKey, library, fontIndex))
                   if(state.loadedEntries[fontKey].status === 'loading')
                     td.FontGroup__Entry__Example key=fontKey+'-entry' style={'font-size': input.fontSize+input.fontSizeUnits}
