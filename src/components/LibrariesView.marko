@@ -1,0 +1,187 @@
+import FontLoader from 'models/_FontLoader.js'
+
+class {
+  onCreate() {
+    this.state = {
+      unifiedLibraries: [],
+      currentPageIndex: 0,
+      currentPageAlpha: 'A',
+      sortBy: 'alpha',
+      loadedEntries: {},
+      checkFontInView: 0,
+    }
+    this.handleFontLoaderUpdate = this.handleFontLoaderUpdate.bind(this)
+  }
+  onMount() {
+    FontLoader.on('font-load', this.handleFontLoaderUpdate)
+    this.update()
+    this.forceUpdate()
+  }
+  onDestroy() {
+    FontLoader.off('font-load', this.handleFontLoaderUpdate)
+  }
+  handleFontLoaderUpdate(data) {
+    this.update()
+    this.forceUpdate()
+  }
+  isEntryInView(key, library, fontIndex) {
+    let el = this.getEl(key)
+    if (!el) return false
+    let container = this.getEl('Fonts')
+
+    let rect = el.getBoundingClientRect()
+    if (rect.top >= container.scrollTop - container.offsetHeight*2 && rect.top <= container.scrollTop + container.offsetHeight*2) {
+      let familyID = library.getFamilyID(fontIndex)
+      if (this.state.loadedEntries[key] === undefined) {
+        this.state.loadedEntries[key] = FontLoader.load(familyID, library.getFontFaceCSS(fontIndex))
+        this.setStateDirty('loadedEntries')
+      }
+      return this.state.loadedEntries[key]
+    }
+    return false
+  }
+  changeSort() {
+    if (this.state.sortBy === 'alpha') {
+      this.state.sortBy = 'numerical'
+    } else {
+      this.state.sortBy = 'alpha'
+    }
+  }
+  setPage(index=0) {
+    this.state.currentPageIndex = index
+    this.update()
+    this.forceUpdate()
+  }
+  setPageAlpha(alpha='A') {
+    this.state.currentPageAlpha = alpha
+    this.update()
+    this.forceUpdate()
+  }
+  getUnifiedLibraries() {
+    let fonts = []
+    for (let index of this.input.selectedLibraries) {
+      let library = this.input.libraries[index]
+      if (!library) continue
+      fonts = [...fonts, ...library.files.map((f,i) => {
+        return {library: library, font: f, index: i}
+      })]
+    }
+    fonts.sort((a,b)=>{
+      if (a.font.title < b.font.title) return -1
+      if (a.font.title > b.font.title) return 1
+      return 0
+    })
+    return fonts
+  }
+  getUnifiedLibrariesAsAlpha(unified) {
+    const alphabet = Array.from(Array(26)).map((e, i) => i + 65).map(c => String.fromCharCode(c))
+    let results = {}
+    for (let char of alphabet) {
+      let charResults = unified.filter(v => v.font.title[0].toUpperCase() === char)
+      if (charResults.length > 0) {
+        results[char] = charResults
+      }
+    }
+    return results
+  }
+  handleFontsScroll() {
+    this.setStateDirty('checkFontInView')
+  }
+}
+
+$ let unified = component.getUnifiedLibraries(input.libraries)
+div.LibrariesView
+  div.Fonts key='Fonts' on-scroll('handleFontsScroll')
+    table.Fonts__Table
+      if(input.workspace)
+        if(state.sortBy === 'alpha')
+          $ let fonts = component.getUnifiedLibrariesAsAlpha(unified)[state.currentPageAlpha]
+          if(fonts)
+            for|entry| of=fonts
+              $ let libraryIndex = entry.library
+              $ let library = entry.library
+              $ let font = entry.font
+              $ let fontIndex = entry.index
+              $ let fontKey = `${font.title}-${library.id}-${fontIndex}`
+              tr key=fontKey+'-title' class='Fonts__FamilyName'
+                th.FontGroup__Title
+                  span.FontGroup__Title__Font -- ${font.title}
+                  span.FontGroup__Title__Library -- ${library.title}
+              tr.FontGroup__Entry id=fontKey key=fontKey checkFontInView
+                if(state.loadedEntries[fontKey] || component.isEntryInView(fontKey, library, fontIndex))
+                  if(state.loadedEntries[fontKey].status === 'loading')
+                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={'font-size': input.fontSize+input.fontSizeUnits}
+                      div -- loading...
+                  else-if(state.loadedEntries[fontKey].status === 'loaded')
+                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={
+                      'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
+                      'font-size': input.fontSize+input.fontSizeUnits,
+                    }
+                      div style={overflow: 'auto'} -- ${input.previewText}
+                  else-if(state.loadedEntries[fontKey].status === 'unloaded')
+                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={
+                      'font-size': input.fontSize+input.fontSizeUnits,
+                    }
+                      div -- unloaded
+                  else-if(state.loadedEntries[fontKey].status === 'error')
+                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={
+                      'font-size': input.fontSize+input.fontSizeUnits,
+                      'color': '#ff0000'
+                    }
+                      div -- error
+                else
+                  td.FontGroup__Entry__Example style={
+                    'font-family': `"Adobe NotDef"`,
+                    'font-size': input.fontSize+input.fontSizeUnits,
+                  }
+                    div style={overflow: 'auto'} -- ${input.previewText}
+          else
+            div -- no results
+        else
+          for|entry, fontIndex| of=unified
+            $ let libraryIndex = entry.library
+            $ let library = input.libraries[libraryIndex]
+            $ let font = entry.font
+            tr class='Fonts__FamilyName'
+              th -- ${font.title}
+            tr.FontGroup__Entry key=`${libraryIndex}-${fontIndex}` checkFontInView
+              if(state.loadedEntries[`${libraryIndex}-${fontIndex}`] || component.isEntryInView(`${libraryIndex}-${fontIndex}`))
+                style -- $!{library.getCSS(fontIndex)}
+                td.FontGroup__Entry__Example style={
+                  'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
+                  'font-size': input.fontSize+input.fontSizeUnits,
+                }
+                  div style={overflow: 'auto'} -- ${input.previewText}
+              else
+                td.FontGroup__Entry__Example style={
+                  'font-family': `"Adobe NotDef"`,
+                  'font-size': input.fontSize+input.fontSizeUnits,
+                }
+                  div style={overflow: 'auto'} -- ${input.previewText}
+  div.Pages
+    div style='color:white' on-click('changeSort')
+      if(state.sortBy === 'alpha')
+        span -- alpha
+      else
+        span -- numerical
+    if(state.sortBy === 'alpha')
+      for|key,value| in=component.getUnifiedLibrariesAsAlpha(unified)
+        div.Pages__Item title=value.length class={'-selected':key===state.currentPageAlpha} on-click('setPageAlpha', key) -- ${key}
+    else
+      span -- TODO
+
+style {
+  .LibrariesView {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .FontGroup__Title {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .FontGroup__Title__Font {
+  }
+  .FontGroup__Title__Library {
+  }
+}

@@ -1,0 +1,88 @@
+class {
+  onCreate() {
+    this.state = {
+      currentPageAlpha: 'A',
+      currentPageIndex: 0,
+    }
+  }
+  handleFontsScroll(e) {
+    console.log('toDODO')
+  }
+  getPageCount() {
+    let total = 0
+    for (let [fontStorePath, fontStore] of Object.entries(this.input.systemFontStores)) {
+      if (!this.input.selectedSystemFontStores.includes(fontStorePath)) continue
+      for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
+        //for (let entry of fontFamily.entries) {
+          total++
+        //}
+      }
+    }
+    let pages = Math.ceil(total / this.input.entriesPerPage)
+    return pages
+  }
+  getPageRange(index=0) {
+    index--
+    let aggregate = []
+    for (let [fontStorePath, fontStore] of Object.entries(this.input.systemFontStores)) {
+      if (!this.input.selectedSystemFontStores.includes(fontStorePath)) continue
+      for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
+        aggregate.push([fontStorePath, fontFamilyName, fontFamily])
+      }
+    }
+    return aggregate.slice(index*this.input.entriesPerPage, index*this.input.entriesPerPage+this.state.entriesPerPage)
+  }
+}
+
+macro|{fontEntry, fontIndex, fontStorePath, fontFamilyName}| name="FontEntry"
+  tr.FontGroup__Entry key=`${fontStorePath}-${fontFamilyName}-${fontIndex}`
+    if(state.loadedEntries[`${fontStorePath}-${fontFamilyName}-${fontIndex}`] || component.isEntryInView(`${fontStorePath}-${fontFamilyName}-${fontIndex}`))
+      td.FontGroup__Entry__Example style={
+        'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
+        'font-size': state.fontSize+state.fontSizeUnits,
+        'font-weight': fontEntry.weight+'',
+        'font-style': fontEntry.italic?'italic':'',
+      }
+        div style={overflow: 'auto'} -- ${state.text}
+    else
+      td.FontGroup__Entry__Example style={
+        'font-family': `"Adobe NotDef"`,
+        'font-size': state.fontSize+state.fontSizeUnits,
+        'font-weight': fontEntry.weight+'',
+        'font-style': fontEntry.italic?'italic':'',
+      }
+        div style={overflow: 'auto'} -- ${state.text}
+    td.FontGroup__Entry__Properties
+      table
+        tbody
+          tr
+            td -- ${fontEntry.weight}
+            td -- ${fontEntry.italic?'i':''}
+    td.FontGroup__Entry__Controls
+      button on-click('revealFont', fontEntry.path) -- reveal
+
+div.SystemFontsView
+  div.Fonts key='Fonts' on-scroll('handleFontsScroll')
+    table.Fonts__Table
+      tbody
+        tr class='Fonts__Header'
+          th -- Example Text
+          th -- Info
+          th -- Controls
+        for|tuple| of=component.getPageRange(state.currentPageIndex)
+          $ let fontStorePath = tuple[0], fontFamilyName = tuple[1], fontFamily = tuple[2]
+          tr class='Fonts__FamilyName'
+            th -- ${fontFamilyName}
+          if(true)
+            $ let [fontEntry, fontIndex] = fontFamily.nearest()
+            FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
+          else 
+            for|fontEntry, fontIndex| of=fontFamily.entries
+              FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
+  div.Pages
+    for|pageIndex| from=1 to=component.getPageCount() step=1
+      div.Pages__Item class={'-selected':pageIndex===state.currentPageIndex} on-click('setPage', pageIndex)
+        span -- ${pageIndex}
+
+style {
+}

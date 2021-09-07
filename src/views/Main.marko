@@ -25,10 +25,8 @@ class {
       selectedSystemFontStores: [],
       selectedCollections: [],
       selectedLibraries: [],
-      unifiedLibraries: [],
-      sortBy: 'alpha',
       text: 'The slow fat fox waits for the roll20',
-      fontSize: 10,
+      fontSize: 32,
       fontSizeUnits: 'pt',
       workspace: null,
       isCreating: false,
@@ -36,11 +34,6 @@ class {
       isLoadingSystemFontStores: false,
       librariesUpdate: 0,
       collectionsUpdate: 0,
-      checkFontInView: 0,
-      loadedEntries: {},
-      currentPageIndex: 1,
-      currentPageAlpha: 'A',
-      totalPages: 0,
       entriesPerPage: 100,
       focusedSection: 'systemFonts'
     }
@@ -119,7 +112,6 @@ class {
     }
     await ws.load()
     this.state.workspace = ws
-    this.updateUnifiedLibraries()
     _Config.settings.wsPath = wsPath
   }
   async createWorkspace(o) {
@@ -145,53 +137,16 @@ class {
   selectLibrary(index) {
     if (!this.state.selectedLibraries.includes(index)) {
       this.state.selectedLibraries.push(index)
-      this.setStateDirty('selectLibraries')
+      this.setStateDirty('selectedLibraries')
+      this.state.librariesUpdate++
     }
-    this.updateUnifiedLibraries()
   }
   unselectLibrary(libraryIndex) {
     let index = this.state.selectedLibraries.indexOf(libraryIndex)
     if (index >= 0) {
       this.state.selectedLibraries.splice(index, 1)
-      this.setStateDirty('selectLibraries')
-    }
-    this.updateUnifiedLibraries()
-  }
-  updateUnifiedLibraries() {
-    this.state.unifiedLibraries = this.getUnifiedLibraries()
-  }
-  getUnifiedLibraries() {
-    let fonts = []
-    for (let index of this.state.selectedLibraries) {
-      let library = this.state.workspace.libraries[index]
-      if (!library) continue
-      fonts = [...fonts, ...library.files.map(f => {
-        return {library: index, font: f}
-      })]
-    }
-    fonts.sort((a,b)=>{
-      if (a.font.title < b.font.title) return -1
-      if (a.font.title > b.font.title) return 1
-      return 0
-    })
-    return fonts
-  }
-  getUnifiedLibrariesAsAlpha(unified) {
-    const alphabet = Array.from(Array(26)).map((e, i) => i + 65).map(c => String.fromCharCode(c))
-    let results = {}
-    for (let char of alphabet) {
-      let charResults = unified.filter(v => v.font.title[0].toUpperCase() === char)
-      if (charResults.length > 0) {
-        results[char] = charResults
-      }
-    }
-    return results
-  }
-  changeSort() {
-    if (this.state.sortBy === 'alpha') {
-      this.state.sortBy = 'numerical'
-    } else {
-      this.state.sortBy = 'alpha'
+      this.setStateDirty('selectedLibraries')
+      this.state.librariesUpdate++
     }
   }
   onSelectedSystemFontStore(which) {
@@ -206,52 +161,6 @@ class {
       this.state.selectedSystemFontStores.splice(index, 1)
       this.setStateDirty('selectedSystemFontStores')
     }
-  }
-  handleFontsScroll() {
-    this.setStateDirty('checkFontInView')
-  }
-  isEntryInView(key) {
-    let el = this.getEl(key)
-    if (!el) return false
-    let container = this.getEl('Fonts')
-
-    let rect = el.getBoundingClientRect()
-    if (rect.top >= container.scrollTop - container.offsetHeight*2 && rect.top <= container.scrollTop + container.offsetHeight*2) {
-      this.state.loadedEntries[key] = true
-      return true
-    }
-    return false
-  }
-  setPage(index=0) {
-    this.state.currentPageIndex = index
-  }
-  setPageAlpha(alpha='A') {
-    this.state.currentPageAlpha = alpha
-    console.log('set currentPageAlpha to', alpha)
-  }
-  getPageCount() {
-    let total = 0
-    for (let [fontStorePath, fontStore] of Object.entries(this.state.systemFontStores)) {
-      if (!this.state.selectedSystemFontStores.includes(fontStorePath)) continue
-      for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
-        //for (let entry of fontFamily.entries) {
-          total++
-        //}
-      }
-    }
-    let pages = Math.ceil(total / this.state.entriesPerPage)
-    return pages
-  }
-  getPageRange(index=0) {
-    index--
-    let aggregate = []
-    for (let [fontStorePath, fontStore] of Object.entries(this.state.systemFontStores)) {
-      if (!this.state.selectedSystemFontStores.includes(fontStorePath)) continue
-      for (let [fontFamilyName, fontFamily] of Object.entries(fontStore)) {
-        aggregate.push([fontStorePath, fontFamilyName, fontFamily])
-      }
-    }
-    return aggregate.slice(index*this.state.entriesPerPage, index*this.state.entriesPerPage+this.state.entriesPerPage)
   }
 }
 
@@ -366,7 +275,8 @@ style {
     color: var(--list2-fg);
     position: sticky;
     text-align: left;
-    top: 2.75ex;
+    /*top: 2.75ex;*/
+    top: 0;
   }
   .FontGroup {
   }
@@ -422,33 +332,6 @@ style {
   }
 }
 
-macro|{fontEntry, fontIndex, fontStorePath, fontFamilyName}| name="FontEntry"
-  tr.FontGroup__Entry key=`${fontStorePath}-${fontFamilyName}-${fontIndex}`
-    if(state.loadedEntries[`${fontStorePath}-${fontFamilyName}-${fontIndex}`] || component.isEntryInView(`${fontStorePath}-${fontFamilyName}-${fontIndex}`))
-      td.FontGroup__Entry__Example style={
-        'font-family': `"${fontFamilyName}", "Adobe NotDef"`,
-        'font-size': state.fontSize+state.fontSizeUnits,
-        'font-weight': fontEntry.weight+'',
-        'font-style': fontEntry.italic?'italic':'',
-      }
-        div style={overflow: 'auto'} -- ${state.text}
-    else
-      td.FontGroup__Entry__Example style={
-        'font-family': `"Adobe NotDef"`,
-        'font-size': state.fontSize+state.fontSizeUnits,
-        'font-weight': fontEntry.weight+'',
-        'font-style': fontEntry.italic?'italic':'',
-      }
-        div style={overflow: 'auto'} -- ${state.text}
-    td.FontGroup__Entry__Properties
-      table
-        tbody
-          tr
-            td -- ${fontEntry.weight}
-            td -- ${fontEntry.italic?'i':''}
-    td.FontGroup__Entry__Controls
-      button on-click('revealFont', fontEntry.path) -- reveal
-
 Titlebar title='fontflock'
   @menu
     if(state.workspace)
@@ -478,83 +361,12 @@ div.Main
       Collections collections=state.workspace.collections update=state.collectionsUpdate on-focus('focusSection', 'collections') focused=state.focusedSection==='collections'
   div.Main__Right
     PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
-    div.Fonts key='Fonts' on-scroll('handleFontsScroll')
-      table.Fonts__Table
-        tbody
-          tr class='Fonts__Header'
-            th -- Example Text
-            th -- Info
-            th -- Controls
-          for|tuple| of=component.getPageRange(state.currentPageIndex)
-            $ let fontStorePath = tuple[0], fontFamilyName = tuple[1], fontFamily = tuple[2]
-            tr class='Fonts__FamilyName'
-              th -- ${fontFamilyName}
-            if(true)
-              $ let [fontEntry, fontIndex] = fontFamily.nearest()
-              FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
-            else 
-              for|fontEntry, fontIndex| of=fontFamily.entries
-                FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
-      table.Fonts__Table
-        if(state.workspace)
-          if(state.sortBy === 'alpha')
-            $ let fonts = component.getUnifiedLibrariesAsAlpha(state.unifiedLibraries)[state.currentPageAlpha]
-            if(fonts)
-              for|entry, fontIndex| of=fonts
-                $ let libraryIndex = entry.library
-                $ let library = state.workspace.libraries[libraryIndex]
-                $ let font = entry.font
-                tr class='Fonts__FamilyName'
-                  th -- ${font.title}
-                tr.FontGroup__Entry key=`${libraryIndex}-${fontIndex}` checkFontInView
-                  if(state.loadedEntries[`${libraryIndex}-${fontIndex}`] || component.isEntryInView(`${libraryIndex}-${fontIndex}`))
-                    style -- $!{library.getCSS(fontIndex)}
-                    td.FontGroup__Entry__Example style={
-                      'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
-                      'font-size': state.fontSize+state.fontSizeUnits,
-                    }
-                      div style={overflow: 'auto'} -- ${state.text}
-                  else
-                    td.FontGroup__Entry__Example style={
-                      'font-family': `"Adobe NotDef"`,
-                      'font-size': state.fontSize+state.fontSizeUnits,
-                    }
-                      div style={overflow: 'auto'} -- ${state.text}
-            else
-              div -- no results
-          else
-            for|entry, fontIndex| of=state.unifiedLibraries
-              $ let libraryIndex = entry.library
-              $ let library = state.workspace.libraries[libraryIndex]
-              $ let font = entry.font
-              tr class='Fonts__FamilyName'
-                th -- ${font.title}
-              tr.FontGroup__Entry key=`${libraryIndex}-${fontIndex}` checkFontInView
-                if(state.loadedEntries[`${libraryIndex}-${fontIndex}`] || component.isEntryInView(`${libraryIndex}-${fontIndex}`))
-                  style -- $!{library.getCSS(fontIndex)}
-                  td.FontGroup__Entry__Example style={
-                    'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
-                    'font-size': state.fontSize+state.fontSizeUnits,
-                  }
-                    div style={overflow: 'auto'} -- ${state.text}
-                else
-                  td.FontGroup__Entry__Example style={
-                    'font-family': `"Adobe NotDef"`,
-                    'font-size': state.fontSize+state.fontSizeUnits,
-                  }
-                    div style={overflow: 'auto'} -- ${state.text}
-    div.Pages
-      div style='color:white' on-click('changeSort')
-        if(state.sortBy === 'alpha')
-          span -- alpha
-        else
-          span -- numerical
-      if(state.sortBy === 'alpha')
-        for|key,value| in=component.getUnifiedLibrariesAsAlpha(state.unifiedLibraries)
-          div.Pages__Item title=value.length class={'-selected':key===state.currentPageAlpha} on-click('setPageAlpha', key) -- ${key}
-      for|pageIndex| from=1 to=component.getPageCount() step=1
-        div.Pages__Item class={'-selected':pageIndex===state.currentPageIndex} on-click('setPage', pageIndex)
-          span -- ${pageIndex}
+    if(state.focusedSection === 'systemFonts')
+      SystemFontsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage
+    else-if(state.focusedSection === 'libraries')
+      LibrariesView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate
+    else-if(state.focusedSection === 'collections')
+      CollectionsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace collections=state.selectedCollections
   if(state.isCreating)
     FloatingWindow on-close('closeWorkspaceCreator')
       @title
