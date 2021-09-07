@@ -60,7 +60,7 @@ class Library extends EventEmitter {
     this.emit('loading')
     const watcher = chokidar.watch(`**/*.{ttf,otf,woff,woff2}`, {
       cwd: this._data.folder,
-      depth: this._data.searchDepth,
+      depth: this._data.searchDepth === -1 ? undefined: this._data.searchDepth,
       ignored: p => {
         if (this._data.ignoreHidden && /(^[.#]|(?:__|~)$)/.test(path.basename(p))) {
           return true

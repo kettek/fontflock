@@ -23,7 +23,7 @@ class {
       return {
         title: this.state.titles[i],
         folder: this.input.directories[i],
-        searchDepth: this.state.searchDepth||0,
+        searchDepth: this.state.searchDepth !== '' ? this.state.searchdepth : -1,
         hierarchyDepth: this.state.hierarchyDepth||0,
         ignoreHidden: this.state.shouldIgnoreHidden[i],
       }
@@ -108,9 +108,9 @@ div.LibraryCreator
               input type='checkbox' checked=state.shouldIgnoreHidden[folderIndex] on-change('setIgnoreHidden', folderIndex)
     label.LibraryCreator__Settings__Item
       span -- Search Depth
-      input type='number' value=state.searchDepth placeholder='0' on-change('setSearchDepth')
+      input type='number' value=state.searchDepth placeholder='-1' on-change('setSearchDepth')
       Notification icon='info' iconSize=2 noBorder
-        span -- How many folders deep should fonts be searched for. 0 for the full folder depth.
+        span -- How many folders deep should fonts be searched for. -1 for the full folder depth.
     label.LibraryCreator__Settings__Item
       span -- Hierarchy Depth
       input type='number' value=state.hierarchyDepth placeholder='0' on-change('setHierarchyDepth')
