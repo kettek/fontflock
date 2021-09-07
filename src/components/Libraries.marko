@@ -40,6 +40,9 @@ style {
     border: 1px solid var(--list-bg);
     border-radius: .25em;
   }
+  .Libraries.-focused {
+    border-color: var(--primary);
+  }
   .Libraries__Header {
     color: var(--list-fg);
     background: var(--list-bg);
@@ -94,7 +97,7 @@ style {
   }
 }
 
-div.Libraries
+div.Libraries class={'-focused': input.focused} on-click(e=>component.emit('focus'))
   div.Libraries__Header
     span.Libraries__Header__Title -- Libraries
     div.Libraries__Header__Add on-click('add')

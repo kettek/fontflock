@@ -4,6 +4,9 @@ style {
     border: 1px solid var(--list-bg);
     border-radius: .25em;
   }
+  .SystemFonts.-focused {
+    border-color: var(--primary);
+  }
   .SystemFonts__Header {
     color: var(--list-fg);
     background: var(--list-bg);
@@ -41,7 +44,7 @@ style {
   }
 }
 
-div.SystemFonts
+div.SystemFonts class={'-focused': input.focused} on-click(e=>component.emit('focus'))
   header.SystemFonts__Header
     div.SystemFonts__Header__Text -- Installed
     div.SystemFonts__Header__Count -- ${Object.values(input.fontStores).reduce((t,v)=>t+Object.keys(v).length, 0)}

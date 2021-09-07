@@ -29,6 +29,9 @@ style {
     border: 1px solid var(--list-bg);
     border-radius: .25em;
   }
+  .Collections.-focused {
+    border-color: var(--primary);
+  }
   .Collections__Header {
     color: var(--list-fg);
     background: var(--list-bg);
@@ -58,7 +61,7 @@ style {
   }
 }
 
-div.Collections
+div.Collections class={'-focused': input.focused} on-click(e=>component.emit('focus'))
   div.Collections__Header
     span.Collections__Header__Title -- Collections
     div.Collections__Header__Add on-click('add')

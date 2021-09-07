@@ -42,6 +42,7 @@ class {
       currentPageAlpha: 'A',
       totalPages: 0,
       entriesPerPage: 100,
+      focusedSection: 'systemFonts'
     }
 
     // Add hook for app closing.
@@ -91,6 +92,9 @@ class {
   }
   closeWorkspaceCreator() {
     this.state.isCreating = false
+  }
+  focusSection(section) {
+    this.state.focusedSection = section
   }
   async openWorkspace() {
     var targetPath = remote.dialog.showOpenDialogSync({
@@ -458,7 +462,7 @@ div.Main
         div.WorkspaceNotifier__Content
           div -- Loading System Fonts...
     else
-      SystemFonts fontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores on-select('onSelectedSystemFontStore') on-unselect('onUnselectedSystemFontStore')
+      SystemFonts fontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores on-select('onSelectedSystemFontStore') on-unselect('onUnselectedSystemFontStore') on-focus('focusSection', 'systemFonts') focused=state.focusedSection==='systemFonts'
     if(state.isLoading)
       div.WorkspaceNotifier
         div.WorkspaceNotifier__Content
@@ -470,8 +474,8 @@ div.Main
           button.WorkspaceNotifier__Button on-click('openWorkspace') -- Open a Workspace
           div -- Workspaces store libraries, collections, and more.
     else
-      Libraries libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate on-create('createLibraries') on-delete('deleteLibraries') on-select('selectLibrary') on-unselect('unselectLibrary')
-      Collections collections=state.workspace.collections update=state.collectionsUpdate
+      Libraries libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate on-create('createLibraries') on-delete('deleteLibraries') on-select('selectLibrary') on-unselect('unselectLibrary') on-focus('focusSection', 'libraries') focused=state.focusedSection==='libraries'
+      Collections collections=state.workspace.collections update=state.collectionsUpdate on-focus('focusSection', 'collections') focused=state.focusedSection==='collections'
   div.Main__Right
     PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
     div.Fonts key='Fonts' on-scroll('handleFontsScroll')
