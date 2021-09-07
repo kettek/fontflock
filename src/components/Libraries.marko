@@ -65,7 +65,9 @@ style {
     margin: 0 .5em;
   }
   .Libraries__Entries__Item {
-    padding: .25em 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
   }
   .Libraries__Entries__Item__Header {
     color: var(--list-fg);
@@ -105,6 +107,7 @@ div.Libraries
       div.Libraries__Entries
         for|library, libraryIndex| of=input.libraries
           div.Libraries__Entries__Item key=libraryIndex
+            input.Libraries__Entries__Item__Active type='checkbox' checked=input.selectedLibraries.includes(libraryIndex) on-change(e=>component.emit(e.target.checked?'select':'unselect', libraryIndex))
             div.Libraries__Entries__Item__Header
               div.Libraries__Entries__Item__Header__Text -- ${library.title}
               div.Libraries__Entries__Item__Header__Count
