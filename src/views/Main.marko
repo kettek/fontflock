@@ -35,7 +35,8 @@ class {
       librariesUpdate: 0,
       collectionsUpdate: 0,
       entriesPerPage: 100,
-      focusedSection: 'systemFonts'
+      focusedSection: 'systemFonts',
+      scrollDelay: 750,
     }
 
     // Add hook for app closing.
@@ -362,11 +363,11 @@ div.Main
   div.Main__Right
     PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
     if(state.focusedSection === 'systemFonts')
-      SystemFontsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage
+      SystemFontsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage scrollDelay=state.scrollDelay
     else-if(state.focusedSection === 'libraries')
-      LibrariesView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate
+      LibrariesView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate scrollDelay=state.scrollDelay
     else-if(state.focusedSection === 'collections')
-      CollectionsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace collections=state.selectedCollections
+      CollectionsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace collections=state.selectedCollections scrollDelay=state.scrollDelay
   if(state.isCreating)
     FloatingWindow on-close('closeWorkspaceCreator')
       @title

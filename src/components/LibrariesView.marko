@@ -27,10 +27,17 @@ class {
   isEntryInView(key, library, fontIndex) {
     let el = this.getEl(key)
     if (!el) return false
+
+    let x = 0, y = 0
+    while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+      x += el.offsetLeft - el.scrollLeft
+      y += el.offsetTop - el.scrollTop
+      el = el.offsetParent
+    }
+
     let container = this.getEl('Fonts')
 
-    let rect = el.getBoundingClientRect()
-    if (rect.top >= container.scrollTop - container.offsetHeight*2 && rect.top <= container.scrollTop + container.offsetHeight*2) {
+    if (y >= (container.scrollTop-container.offsetHeight*2) && y <= container.scrollTop+container.offsetHeight*2) {
       let familyID = library.getFamilyID(fontIndex)
       if (this.state.loadedEntries[key] === undefined) {
         this.state.loadedEntries[key] = FontLoader.load(familyID, library.getFontFaceCSS(fontIndex))
@@ -85,7 +92,13 @@ class {
     return results
   }
   handleFontsScroll() {
-    this.setStateDirty('checkFontInView')
+    if (this.scrollCheckDelay) {
+      clearTimeout(this.scrollCheckDelay)
+      this.scrollCheckDelay = null
+    }
+    this.scrollCheckDelay = setTimeout(() => {
+      this.setStateDirty('checkFontInView')
+    }, this.input.scrollDelay)
   }
 }
 
