@@ -82,36 +82,38 @@ tr.FontGroup__Entry key='entry' checkFontInView=input.checkFontInView
   if(!state.entry)
     td.FontGroup__Entry__Example style={
       'font-family': `"Adobe NotDef"`,
-      'font-size': input.fontSize+input.fontSizeUnits,
     }
       div style={overflow: 'auto'} -- ${input.previewText}
   else
     if(state.entry.status === 'loading')
-      td.FontGroup__Entry__Example style={'font-size': input.fontSize+input.fontSizeUnits}
+      td.FontGroup__Entry__Example
         div -- loading...
     else-if(state.entry.status === 'loaded')
       td.FontGroup__Entry__Example style={
         'font-family': `"${input.familyID}", "Adobe NotDef"`,
-        'font-size': input.fontSize+input.fontSizeUnits,
       }
         div style={overflow: 'auto'} -- ${input.previewText}
     else-if(state.entry.status === 'unloaded')
-      td.FontGroup__Entry__Example style={
-        'font-size': input.fontSize+input.fontSizeUnits,
-      }
+      td.FontGroup__Entry__Example
         div -- unloaded
     else-if(state.entry.status === 'error')
-      td.FontGroup__Entry__Example style={
-        'font-size': input.fontSize+input.fontSizeUnits,
-        'color': '#ff0000'
-      }
-        div -- error
+      td.FontGroup__Entry__Example
+        div -- failed
 
 style {
+  .FontGroup__Entry { /* regular, bold, etc. */
+    background: var(--list2-bg);
+    color: var(--list2-fg);
+  }
   .FontGroup__Title__Font__Error {
     font-size: 10pt;
     font-weight: normal;
     padding-left: 1em;
     color: #a00;
+  }
+  .FontGroup__Entry__Example {
+    font-size: var(--preview-font-size);
+    background-color: var(--preview-background-color);
+    color: var(--preview-foreground-color);
   }
 }

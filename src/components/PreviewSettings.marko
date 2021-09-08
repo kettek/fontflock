@@ -8,17 +8,55 @@ class {
     setUnits(e) {
         this.emit('change-units', e)
     }
+    setForeground(e) {
+      this.emit('change-foreground', e)
+    }
+    setBackground(e) {
+      this.emit('change-background', e)
+    }
+    swapColors() {
+      this.emit('swap-colors')
+    }
 }
 
 style {
   .PreviewSettings {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
     grid-template-rows: minmax(0, 1fr);
     padding: .5em;
     margin: .5em .5em .5em 0;
     border: 1px solid var(--list-bg);
     border-radius: .25em;
+  }
+  .PreviewSettings__Colors {
+    position: relative;
+    width: 2.5em;
+    height: 2.5em;
+  }
+  .PreviewSettings__Colors__Foreground, .PreviewSettings__Colors__Background {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    left: 0;
+    top: 0;
+  }
+  .PreviewSettings__Colors__Foreground {
+    width: 2em;
+    height: 2em;
+  }
+  .PreviewSettings__Colors__Background {
+    left: 1em;
+    top: 1em;
+    width: 2em;
+    height: 2em;
+  }
+  .PreviewSettings__Colors__Swapper {
+    position: absolute;
+    margin: 0; border: 0; padding: 0;
+    top: 0;
+    right: 0;
   }
 }
 
@@ -28,3 +66,7 @@ div.PreviewSettings
   select on-change('setUnits')
     option value='pt' selected=input.fontSizeUnits=='pt' -- pt
     option value='px' selected=input.fontSizeUnits=='px' -- px
+  span.PreviewSettings__Colors
+    input.PreviewSettings__Colors__Background type='color' value=input.backgroundColor on-input('setBackground')
+    input.PreviewSettings__Colors__Foreground type='color' value=input.foregroundColor on-input('setForeground')
+    button.PreviewSettings__Colors__Swapper on-click('swapColors') -- 🗘

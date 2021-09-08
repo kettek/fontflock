@@ -132,7 +132,7 @@ div.LibrariesView
               $ let font = entry.font
               $ let fontIndex = entry.index
               $ let fontKey = `${font.title}-${library.id}-${fontIndex}`
-              FontGroupEntry key=fontKey fontIndex=fontIndex fontTitle=font.title library=library libraryTitle=library.title checkFontInView=state.checkFontInView fontSize=input.fontSize fontSizeUnits=input.fontSizeUnits previewText=input.previewText familyID=library.getFamilyID(fontIndex) scrollDelay=input.scrollDelay scrollMonitor=component.scrollMonitor on-enter('handleFontGroupEntryEnter', fontKey, library, fontIndex) on-exit('handleFontGroupEntryExit', fontKey, library, fontIndex) entry=state.loadedEntries[fontKey] unloadOnDestroy=true
+              FontGroupEntry key=fontKey fontIndex=fontIndex fontTitle=font.title library=library libraryTitle=library.title checkFontInView=state.checkFontInView previewText=input.previewText familyID=library.getFamilyID(fontIndex) scrollDelay=input.scrollDelay scrollMonitor=component.scrollMonitor on-enter('handleFontGroupEntryEnter', fontKey, library, fontIndex) on-exit('handleFontGroupEntryExit', fontKey, library, fontIndex) entry=state.loadedEntries[fontKey] unloadOnDestroy=true
           else
             div -- no results
         else

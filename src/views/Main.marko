@@ -37,6 +37,8 @@ class {
       entriesPerPage: 100,
       focusedSection: 'systemFonts',
       scrollDelay: 500,
+      foregroundColor: '#000000',
+      backgroundColor: '#ffffff',
     }
 
     // Add hook for app closing.
@@ -77,6 +79,17 @@ class {
   }
   setUnits(e) {
     this.state.fontSizeUnits = e.target.value
+  }
+  setForeground(e) {
+    this.state.foregroundColor = e.target.value
+  }
+  setBackground(e) {
+    this.state.backgroundColor = e.target.value
+  }
+  swapColors() {
+    let c = this.state.foregroundColor
+    this.state.foregroundColor = this.state.backgroundColor
+    this.state.backgroundColor = c
   }
   revealFont(fontPath) {
     shell.showItemInFolder(fontPath)
@@ -281,16 +294,7 @@ style {
   }
   .FontGroup {
   }
-  .FontGroup__Entry { /* regular, bold, etc. */
-    background: var(--list2-bg);
-    color: var(--list2-fg);
-  }
-  .FontGroup__Entry__Example {
-    color: black;
-    background: white;
-    font-size: 20em;
-  }
-  .WorkspaceNotifier {
+ .WorkspaceNotifier {
     margin: .5em;
     border: 1px solid var(--list-bg);
     border-radius: .25em;
@@ -360,14 +364,18 @@ div.Main
     else
       Libraries libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate on-create('createLibraries') on-delete('deleteLibraries') on-select('selectLibrary') on-unselect('unselectLibrary') on-focus('focusSection', 'libraries') focused=state.focusedSection==='libraries'
       Collections collections=state.workspace.collections update=state.collectionsUpdate on-focus('focusSection', 'collections') focused=state.focusedSection==='collections'
-  div.Main__Right
-    PreviewSettings fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text on-change-text('setText') on-change-size('setSize') on-change-units('setUnits')
+  div.Main__Right style={
+    '--preview-foreground-color': state.foregroundColor,
+    '--preview-background-color': state.backgroundColor,
+    '--preview-font-size': state.fontSize+state.fontSizeUnits,
+  }
+    PreviewSettings previewText=state.text fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits foregroundColor=state.foregroundColor backgroundColor=state.backgroundColor on-change-text('setText') on-change-size('setSize') on-change-units('setUnits') on-change-foreground('setForeground') on-change-background('setBackground') on-swap-colors('swapColors')
     if(state.focusedSection === 'systemFonts')
-      SystemFontsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage scrollDelay=state.scrollDelay
+      SystemFontsView previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage scrollDelay=state.scrollDelay
     else-if(state.focusedSection === 'libraries')
-      LibrariesView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate scrollDelay=state.scrollDelay
+      LibrariesView previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate scrollDelay=state.scrollDelay
     else-if(state.focusedSection === 'collections')
-      CollectionsView fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits previewText=state.text workspace=state.workspace collections=state.selectedCollections scrollDelay=state.scrollDelay
+      CollectionsView previewText=state.text workspace=state.workspace collections=state.selectedCollections scrollDelay=state.scrollDelay
   if(state.isCreating)
     FloatingWindow on-close('closeWorkspaceCreator')
       @title
