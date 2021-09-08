@@ -31,6 +31,7 @@ class {
       workspace: null,
       isCreating: false,
       isEditing: false,
+      showConfig: false,
       isLoading: false,
       isLoadingSystemFontStores: false,
       librariesUpdate: 0,
@@ -106,6 +107,12 @@ class {
   }
   closeWorkspaceCreator() {
     this.state.isCreating = false
+  }
+  showConfigEditor() {
+    this.state.showConfig = true
+  }
+  closeConfigEditor() {
+    this.state.showConfig = false
   }
   focusSection(section) {
     this.state.focusedSection = section
@@ -327,7 +334,8 @@ Titlebar title='fontflock'
     if(state.workspace)
       div.Titlebar__Controls__Button on-click('showWorkspaceEditor') -- ${state.workspace.title}...
     else
-      div.Titlebar__Controls__Button -- Workspace...
+      div.Titlebar__Controls__ButtonG -- Workspace...
+    div.Titlebar__Controls__Button on-click('showConfigEditor') -- Configuration
 div.Main
   div.Main__Left
     if(state.isLoadingSystemFontStores)
@@ -373,3 +381,9 @@ div.Main
         span -- Edit Workspace
       @body
         WorkspaceEditor workspace=state.workspace on-close('closeWorkspaceEditor')
+  if(state.showConfig)
+    FloatingWindow on-close('closeConfigEditor')
+      @title
+        span -- Global Configuration
+      @body
+        ConfigurationEditor
