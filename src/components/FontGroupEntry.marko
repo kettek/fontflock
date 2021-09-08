@@ -73,7 +73,7 @@ class {
 
 tr class='Fonts__FamilyName'
   th.FontGroup__Title
-    span.FontGroup__Title__Font
+    span.FontGroup__Title__Font class={'-error': state.error}
       span -- ${input.fontTitle}
       if(state.error)
         span.FontGroup__Title__Font__Error -- ${state.error}
@@ -98,12 +98,15 @@ tr.FontGroup__Entry key='entry' checkFontInView=input.checkFontInView
         div -- unloaded
     else-if(state.entry.status === 'error')
       td.FontGroup__Entry__Example
-        div -- failed
+        div -- ⎯⎯⎯⎯⎯⎯⎯⎯
 
 style {
   .FontGroup__Entry { /* regular, bold, etc. */
     background: var(--list2-bg);
     color: var(--list2-fg);
+  }
+  .FontGroup__Title__Font.-error {
+    color: #a00;
   }
   .FontGroup__Title__Font__Error {
     font-size: 10pt;
