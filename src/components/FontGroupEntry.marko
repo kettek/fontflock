@@ -64,6 +64,10 @@ class {
    * handleExit is responsible for deleting the loaded FontFace from the documents.fonts object, providing the `unloadOnExit` input property is defined.
    */
   handleExit() {
+    if (this.scrollDelayTimer) {
+      clearTimeout(this.scrollDelayTimer)
+      this.scrollDelayTimer = null
+    }
     if (this.input.unloadOnExit) {
       document.fonts.delete(this.state.entry)
       this.state.entry = null
