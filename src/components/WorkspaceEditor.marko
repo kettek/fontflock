@@ -1,0 +1,58 @@
+class {
+  onCreate(input) {
+    this.state = {
+      workspaceTitle: input.workspace.title,
+    }
+  }
+  setTitle(e) {
+    this.state.workspaceTitle = e.target.value
+  }
+  close(save=false) {
+    if (save) {
+      this.apply()
+    }
+    this.emit('close')
+  }
+  apply() {
+    if (this.input.workspace.title !== this.state.workspaceTitle) {
+      this.input.workspace.title = this.state.workspaceTitle
+    }
+  }
+}
+
+div.WorkspaceEditor
+  div.WorkspaceEditor__Info
+  div.WorkspaceEditor__Settings
+    label.WorkspaceEditor__Settings__Item
+      span -- Title
+      input value=state.workspaceTitle placeholder=input.workspace.title on-change('setTitle')
+  div.WorkspaceEditor__Controls
+    button.WorkspaceEditor__Controls__Button on-click('close') -- Close
+    button.WorkspaceEditor__Controls__Button on-click('close', true) -- Save & Close
+    button.WorkspaceEditor__Controls__Button on-click('apply') -- Apply
+
+style {
+  .WorkspaceEditor__Info {
+    color: #999;
+  }
+  .WorkspaceEditor__Settings {
+    margin: .5em;
+    padding: .5em;
+  }
+  .WorkspaceEditor__Settings__Item {
+  }
+  .WorkspaceEditor__Settings__Item span {
+    font-weight: bold;
+    margin-right: .5em;
+  }
+  .WorkspaceEditor__Controls {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .WorkspaceEditor__Controls__Button {
+    background: var(--list-bg);
+    color: var(--list-fg);
+    padding: .5em;
+    margin-left: .5em;
+  }
+}

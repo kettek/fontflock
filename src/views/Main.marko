@@ -30,6 +30,7 @@ class {
       fontSizeUnits: 'pt',
       workspace: null,
       isCreating: false,
+      isEditing: false,
       isLoading: false,
       isLoadingSystemFontStores: false,
       librariesUpdate: 0,
@@ -93,6 +94,12 @@ class {
   }
   revealFont(fontPath) {
     shell.showItemInFolder(fontPath)
+  }
+  showWorkspaceEditor() {
+    this.state.isEditing = true
+  }
+  closeWorkspaceEditor() {
+    this.state.isEditing = false
   }
   showWorkspaceCreator() {
     this.state.isCreating = true
@@ -318,7 +325,7 @@ style {
 Titlebar title='fontflock'
   @menu
     if(state.workspace)
-      div.Titlebar__Controls__Button -- ${state.workspace.title}
+      div.Titlebar__Controls__Button on-click('showWorkspaceEditor') -- ${state.workspace.title}...
     else
       div.Titlebar__Controls__Button -- Workspace...
 div.Main
@@ -360,3 +367,9 @@ div.Main
         span -- Create a Workspace
       @body
         WorkspaceCreator on-close('closeWorkspaceCreator') on-create('createWorkspace')
+  if(state.isEditing)
+    FloatingWindow on-close('closeWorkspaceEditor')
+      @title
+        span -- Edit Workspace
+      @body
+        WorkspaceEditor workspace=state.workspace on-close('closeWorkspaceEditor')
