@@ -80,10 +80,8 @@ tr class='Fonts__FamilyName'
     span.FontGroup__Title__Library -- ${input.libraryTitle}
 tr.FontGroup__Entry key='entry' checkFontInView=input.checkFontInView
   if(!state.entry)
-    td.FontGroup__Entry__Example style={
-      'font-family': `"Adobe NotDef"`,
-    }
-      div style={overflow: 'auto'} -- ${input.previewText}
+    td.FontGroup__Entry__Example
+      div style={overflow: 'auto'} -- loading...
   else
     if(state.entry.status === 'loading')
       td.FontGroup__Entry__Example
@@ -115,6 +113,7 @@ style {
     color: #a00;
   }
   .FontGroup__Entry__Example {
+    padding: .5em;
     font-size: var(--preview-font-size);
     background-color: var(--preview-background-color);
     color: var(--preview-foreground-color);
