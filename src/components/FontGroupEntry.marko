@@ -1,3 +1,6 @@
+/**
+ * FontGroupEntry is a component that manages displaying and loading a specific font within a library.
+ */
 import FontLoader from 'models/_FontLoader.js'
 import scrollMonitor from 'scrollmonitor'
 import FontErrorWatcher from 'models/_FontErrorWatcher.js'
@@ -26,11 +29,17 @@ class {
       document.fonts.delete(this.state.entry)
     }
   }
+  /**
+   * handleError is responsible for checking if a FontError matches this font's path. If so, the `error` state property is set to the message.
+   */
   handleError(e) {
     if (e.path === this.input.library.getFontFaceNativePath(this.input.fontIndex)) {
       this.state.error = e.message
     }
   }
+  /**
+   * handleEnter is responsible for loading a new FontFace when the Font's main DOM element comes within view, the delay timer has expired, and the FontFace has not yet been loaded. Upon succesful load, the FontFace is added to document.fonts. Failure is captured and managed via handleError.
+   */
   async handleEnter() {
     if (!this.state.entry) {
       if (this.scrollDelayTimer) {
@@ -51,6 +60,9 @@ class {
       }, this.input.scrollDelay)
     }
   }
+  /**
+   * handleExit is responsible for deleting the loaded FontFace from the documents.fonts object, providing the `unloadOnExit` input property is defined.
+   */
   handleExit() {
     if (this.input.unloadOnExit) {
       document.fonts.delete(this.state.entry)
