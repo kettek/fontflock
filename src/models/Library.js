@@ -20,11 +20,39 @@ class Library extends EventEmitter {
   get folder() {
     return this._data.folder
   }
+  set folder(v) {
+    this._data.folder = v
+    this.load()
+  }
+  get searchDepth() {
+    return this._data.searchDepth
+  }
+  set searchDepth(v) {
+    this._data.searchDepth = v
+    this.load()
+  }
+  get hierarchyDepth() {
+    return this._data.hierarchyDepth
+  }
+  set hierarchyDepth(v) {
+    this._data.hierarchyDepth = v
+    this.load()
+  }
+  get ignoreHidden() {
+    return this._data.ignoreHidden
+  }
+  set ignoreHidden(v) {
+    this._data.ignoreHidden = v
+    this.load()
+  }
   get id() {
     return this._data.id
   }
   get title() {
     return this._data.title
+  }
+  set title(v) {
+    this._data.title = v
   }
   get files() {
     return this._files
@@ -64,6 +92,12 @@ class Library extends EventEmitter {
 }`
   }
   async load() {
+    // Clear out old watcher.
+    if (this._watcher) {
+      this._files = []
+      await this._watcher.close()
+      this._watcher = null
+    }
     this.emit('loading')
     const watcher = chokidar.watch(`**/*.{ttf,otf,woff,woff2}`, {
       cwd: this._data.folder,
