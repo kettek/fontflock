@@ -39,6 +39,13 @@ class Library extends EventEmitter {
     }
     return `${this.id}__${f.path}`
   }
+  getFontFaceNativePath(index) {
+    let f = this.files[index]
+    if (!f) {
+      return ""
+    }
+    return path.join(this.folder, f.path)
+  }
   getFontFaceCSS(index) {
     let f = this.files[index]
     if (!f) {
