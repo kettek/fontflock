@@ -5,6 +5,8 @@ class {
     this.state = {
       showAddDialog: false,
       pendingDirectories: [],
+      showEditDialog: false,
+      editLibraryID: '',
     }
   }
   async add() {
@@ -31,6 +33,13 @@ class {
   deleteLibrary(id) {
     // TODO: confirmation first.
     this.emit('delete', [id])
+  }
+  editLibrary(id) {
+    this.state.showEditDialog = true
+    this.state.editLibraryID = id
+  }
+  closeEditDialog() {
+    this.state.showEditDialog = false
   }
 }
 
@@ -123,6 +132,7 @@ div.Libraries class={'-focused': input.focused} on-click(e=>component.emit('focu
                   div.Libraries__Entries__Item__Header__Burger
                     Icon size=1 icon='burger'
                 @body
+                  div style={cursor: 'pointer'} on-click('editLibrary', library.id) -- edit
                   div style={cursor: 'pointer'} on-click('deleteLibrary', library.id) -- delete
 if(state.showAddDialog)
   FloatingWindow on-close('closeAddDialog')
@@ -130,4 +140,9 @@ if(state.showAddDialog)
       span -- Add Libraries
     @body
       LibraryCreator on-close('closeAddDialog') on-create('createLibrary') directories=state.pendingDirectories
-        
+if(state.showEditDialog)
+  FloatingWindow on-close('closeEditDialog')
+    @title
+      span -- Edit Library
+    @body
+      LibraryEditor on-close('closeEditDialog') library=input.libraries.find(l=>l.id===state.editLibraryID)
