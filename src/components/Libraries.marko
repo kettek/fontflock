@@ -38,6 +38,9 @@ class {
     this.state.showEditDialog = true
     this.state.editLibraryID = id
   }
+  rescanLibrary(id) {
+    this.input.libraries.find(l=>l.id===id).load()
+  }
   closeEditDialog() {
     this.state.showEditDialog = false
   }
@@ -133,6 +136,7 @@ div.Libraries class={'-focused': input.focused} on-click(e=>component.emit('focu
                     Icon size=1 icon='burger'
                 @body
                   div style={cursor: 'pointer'} on-click('editLibrary', library.id) -- edit
+                  div style={cursor: 'pointer'} on-click('rescanLibrary', library.id) -- rescan
                   div style={cursor: 'pointer'} on-click('deleteLibrary', library.id) -- delete
 if(state.showAddDialog)
   FloatingWindow on-close('closeAddDialog')
