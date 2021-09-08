@@ -182,4 +182,27 @@ style {
   }
   .FontGroup__Title__Library {
   }
+  .Pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .Pages__Item {
+    background: var(--list-bg);
+    color: var(--list-fg);
+    cursor: pointer;
+    padding: .25em;
+    margin: .25em;
+    min-width: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: .25em;
+  }
+  .Pages__Item.-selected {
+    background: var(--list-fg);
+    color: var(--list-bg);
+    cursor: auto;
+  }
 }
