@@ -1,4 +1,5 @@
 import FontLoader from 'models/_FontLoader.js'
+import scrollMonitor from 'scrollmonitor'
 
 class {
   onCreate() {
@@ -9,20 +10,26 @@ class {
       sortBy: 'alpha',
       loadedEntries: {},
       checkFontInView: 0,
+      mounted: false,
     }
     this.handleFontLoaderUpdate = this.handleFontLoaderUpdate.bind(this)
   }
   onMount() {
+    this.scrollMonitor = scrollMonitor.createContainer(this.getEl('Fonts'))
+    this.state.mounted = true
     FontLoader.on('font-load', this.handleFontLoaderUpdate)
     this.update()
     this.forceUpdate()
   }
   onDestroy() {
     FontLoader.off('font-load', this.handleFontLoaderUpdate)
+    this.scrollMonitor.destroy()
   }
   handleFontLoaderUpdate(data) {
     this.update()
     this.forceUpdate()
+    console.log('should issue some sort of refresh')
+    this.setStateDirty('loadedEntries')
   }
   isEntryInView(key, library, fontIndex) {
     let el = this.getEl(key)
@@ -100,13 +107,22 @@ class {
       this.setStateDirty('checkFontInView')
     }, this.input.scrollDelay)
   }
+  handleFontGroupEntryEnter(key, library, fontIndex) {
+    let familyID = library.getFamilyID(fontIndex)
+    if (this.state.loadedEntries[key] === undefined) {
+      this.state.loadedEntries[key] = FontLoader.load(familyID, library.getFontFaceCSS(fontIndex))
+      this.setStateDirty('loadedEntries')
+    }
+  }
+  handleFontGroupEntryExit(key, library, fontIndex) {
+  }
 }
 
 $ let unified = component.getUnifiedLibraries(input.libraries)
 div.LibrariesView
   div.Fonts key='Fonts' on-scroll('handleFontsScroll')
     table.Fonts__Table
-      if(input.workspace)
+      if(input.workspace && state.mounted)
         if(state.sortBy === 'alpha')
           $ let fonts = component.getUnifiedLibrariesAsAlpha(unified)[state.currentPageAlpha]
           if(fonts)
@@ -116,38 +132,7 @@ div.LibrariesView
               $ let font = entry.font
               $ let fontIndex = entry.index
               $ let fontKey = `${font.title}-${library.id}-${fontIndex}`
-              tr key=fontKey+'-title' class='Fonts__FamilyName'
-                th.FontGroup__Title
-                  span.FontGroup__Title__Font -- ${font.title}
-                  span.FontGroup__Title__Library -- ${library.title}
-              tr.FontGroup__Entry key=fontKey checkFontInView
-                if(state.loadedEntries[fontKey] || component.isEntryInView(fontKey, library, fontIndex))
-                  if(state.loadedEntries[fontKey].status === 'loading')
-                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={'font-size': input.fontSize+input.fontSizeUnits}
-                      div -- loading...
-                  else-if(state.loadedEntries[fontKey].status === 'loaded')
-                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={
-                      'font-family': `"${library.getFamilyID(fontIndex)}", "Adobe NotDef"`,
-                      'font-size': input.fontSize+input.fontSizeUnits,
-                    }
-                      div style={overflow: 'auto'} -- ${input.previewText}
-                  else-if(state.loadedEntries[fontKey].status === 'unloaded')
-                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={
-                      'font-size': input.fontSize+input.fontSizeUnits,
-                    }
-                      div -- unloaded
-                  else-if(state.loadedEntries[fontKey].status === 'error')
-                    td.FontGroup__Entry__Example key=fontKey+'-entry' style={
-                      'font-size': input.fontSize+input.fontSizeUnits,
-                      'color': '#ff0000'
-                    }
-                      div -- error
-                else
-                  td.FontGroup__Entry__Example style={
-                    'font-family': `"Adobe NotDef"`,
-                    'font-size': input.fontSize+input.fontSizeUnits,
-                  }
-                    div style={overflow: 'auto'} -- ${input.previewText}
+              FontGroupEntry key=fontKey fontIndex=fontIndex fontTitle=font.title library=library libraryTitle=library.title checkFontInView=state.checkFontInView fontSize=input.fontSize fontSizeUnits=input.fontSizeUnits previewText=input.previewText familyID=library.getFamilyID(fontIndex) scrollDelay=input.scrollDelay scrollMonitor=component.scrollMonitor on-enter('handleFontGroupEntryEnter', fontKey, library, fontIndex) on-exit('handleFontGroupEntryExit', fontKey, library, fontIndex) entry=state.loadedEntries[fontKey] unloadOnDestroy=true
           else
             div -- no results
         else
