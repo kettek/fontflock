@@ -98,6 +98,9 @@ class Workspace extends EventEmitter {
   get title() {
     return this._data.state.title
   }
+  set title(v) {
+    this._data.state.title = v
+  }
   /**
    * 
    */
