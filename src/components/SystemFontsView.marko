@@ -61,28 +61,29 @@ macro|{fontEntry, fontIndex, fontStorePath, fontFamilyName}| name="FontEntry"
     td.FontGroup__Entry__Controls
       button on-click('revealFont', fontEntry.path) -- reveal
 
-div.SystemFontsView
-  div.Fonts key='Fonts' on-scroll('handleFontsScroll')
-    table.Fonts__Table
-      tbody
-        tr class='Fonts__Header'
-          th -- Example Text
-          th -- Info
-          th -- Controls
-        for|tuple| of=component.getPageRange(state.currentPageIndex)
-          $ let fontStorePath = tuple[0], fontFamilyName = tuple[1], fontFamily = tuple[2]
-          tr class='Fonts__FamilyName'
-            th -- ${fontFamilyName}
-          if(true)
-            $ let [fontEntry, fontIndex] = fontFamily.nearest()
-            FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
-          else 
-            for|fontEntry, fontIndex| of=fontFamily.entries
+context|{ t }| from='Locale'
+  div.SystemFontsView
+    div.Fonts key='Fonts' on-scroll('handleFontsScroll')
+      table.Fonts__Table
+        tbody
+          tr class='Fonts__Header'
+            th -- ${t('system-fonts.labels.example-text')}
+            th -- ${t('system-fonts.labels.info')}
+            th -- ${t('system-fonts.labels.controls')}
+          for|tuple| of=component.getPageRange(state.currentPageIndex)
+            $ let fontStorePath = tuple[0], fontFamilyName = tuple[1], fontFamily = tuple[2]
+            tr class='Fonts__FamilyName'
+              th -- ${fontFamilyName}
+            if(true)
+              $ let [fontEntry, fontIndex] = fontFamily.nearest()
               FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
-  div.Pages
-    for|pageIndex| from=1 to=component.getPageCount() step=1
-      div.Pages__Item class={'-selected':pageIndex===state.currentPageIndex} on-click('setPage', pageIndex)
-        span -- ${pageIndex}
+            else 
+              for|fontEntry, fontIndex| of=fontFamily.entries
+                FontEntry fontStorePath=fontStorePath fontFamilyName=fontFamilyName fontEntry=fontEntry fontIndex=fontIndex
+    div.Pages
+      for|pageIndex| from=1 to=component.getPageCount() step=1
+        div.Pages__Item class={'-selected':pageIndex===state.currentPageIndex} on-click('setPage', pageIndex)
+          span -- ${pageIndex}
 
 style {
 }

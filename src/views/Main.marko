@@ -355,7 +355,7 @@ Locale
             div.WorkspaceNotifier__Content
               button.WorkspaceNotifier__Button on-click('showWorkspaceCreator') -- ${t('workspace.labels.create')}
               button.WorkspaceNotifier__Button on-click('openWorkspace') -- ${t('workspace.labels.open')}
-              div -- ${t('workspace.labels.description')}
+              div -- ${t('workspace.descriptions.workspace')}
         else
           Libraries libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate on-create('createLibraries') on-delete('deleteLibraries') on-select('selectLibrary') on-unselect('unselectLibrary') on-focus('focusSection', 'libraries') focused=state.focusedSection==='libraries'
           Collections collections=state.workspace.collections update=state.collectionsUpdate on-focus('focusSection', 'collections') focused=state.focusedSection==='collections'

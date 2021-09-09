@@ -44,15 +44,16 @@ style {
   }
 }
 
-div.SystemFonts class={'-focused': input.focused} on-click(e=>component.emit('focus'))
-  header.SystemFonts__Header
-    div.SystemFonts__Header__Text -- Installed
-    div.SystemFonts__Header__Count -- ${Object.values(input.fontStores).reduce((t,v)=>t+Object.keys(v).length, 0)}
-  div.SystemFonts__Entries
-    for|fontStoreName, fontStore| in=input.fontStores
-      div.SystemFonts__Entries__Item
-        input.SystemFonts__Entries__Item__Active type='checkbox' checked=input.selectedSystemFontStores.includes(fontStoreName) on-change(e=>component.emit(e.target.checked?'select':'unselect', fontStoreName))
-        div.SystemFonts__Entries__Item__Header
-          div.SystemFonts__Entries__Item__Header__Text -- ${fontStoreName}
-          div.SystemFonts__Entries__Item__Header__Count -- ${Object.keys(fontStore).length}
+context|{ t }| from='Locale'
+  div.SystemFonts class={'-focused': input.focused} on-click(e=>component.emit('focus'))
+    header.SystemFonts__Header
+      div.SystemFonts__Header__Text -- ${t('system-fonts.labels.installed')}
+      div.SystemFonts__Header__Count -- ${Object.values(input.fontStores).reduce((t,v)=>t+Object.keys(v).length, 0)}
+    div.SystemFonts__Entries
+      for|fontStoreName, fontStore| in=input.fontStores
+        div.SystemFonts__Entries__Item
+          input.SystemFonts__Entries__Item__Active type='checkbox' checked=input.selectedSystemFontStores.includes(fontStoreName) on-change(e=>component.emit(e.target.checked?'select':'unselect', fontStoreName))
+          div.SystemFonts__Entries__Item__Header
+            div.SystemFonts__Entries__Item__Header__Text -- ${fontStoreName}
+            div.SystemFonts__Entries__Item__Header__Count -- ${Object.keys(fontStore).length}
  

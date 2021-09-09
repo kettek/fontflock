@@ -71,32 +71,33 @@ style {
   }
 }
 
-div.LibraryEditor
-  div.LibraryEditor__Info
-    Notification icon='info'
-      p -- A Library points to a folder on your computer to look for fonts within. Each Library can be configured to behave a bit differently in how deep font searching goes and how the Library's hierarchy is presented.
-  div.LibraryEditor__Settings
-    label.LibraryEditor__Settings__Item
-      span -- Title
-      input value=state.title placeholder=input.library.title on-change('setTitle')
-      Notification icon='info' iconSize=2 noBorder
-        span -- The title of the folder as presented in the application.
-    label.LibraryEditor__Settings__Item
-      span -- Search Depth
-      input type='number' value=state.searchDepth placeholder=input.library._data.searchDepth on-change('setSearchDepth')
-      Notification icon='info' iconSize=2 noBorder
-        span -- How many folders deep should fonts be searched for. -1 for the full folder depth.
-    label.LibraryEditor__Settings__Item
-      span -- Hierarchy Depth
-      input type='number' value=state.hierarchyDepth placeholder=input.library._data.hierarchyDepth on-change('setHierarchyDepth')
-      Notification icon='info' iconSize=2 noBorder
-        span -- How many folders should be presented. 0 for full folder structure, 1 for only the single folder.
-    label.LibraryEditor__Settings__Item
-      span -- Ignore Hidden Files & Folders
-      input type='checkbox' checked=state.ignoreHidden placeholder=input.library._data.ignoreHidden on-change('setIgnoreHidden')
-      Notification icon='info' iconSize=2 noBorder
-        span -- Whether or not files and folders that are hidden should be ignored.
-  div.LibraryEditor__Controls
-    button.LibraryEditor__Controls__Button on-click('close') -- Close
-    button.LibraryEditor__Controls__Button on-click('close', true) -- Close & Save
-    button.LibraryEditor__Controls__Button on-click('save') -- Apply
+context|{ t }| from='Locale'
+  div.LibraryEditor
+    div.LibraryEditor__Info
+      Notification icon='info'
+        p -- ${t('libraries.descriptions.library')}
+    div.LibraryEditor__Settings
+      label.LibraryEditor__Settings__Item
+        span -- ${t('library-editor.labels.title')}
+        input value=state.title placeholder=input.library.title on-change('setTitle')
+        Notification icon='info' iconSize=2 noBorder
+          span -- ${t('library-editor.descriptions.title')}
+      label.LibraryEditor__Settings__Item
+        span -- ${t('library-creator.labels.search-depth')}
+        input type='number' value=state.searchDepth placeholder=input.library._data.searchDepth on-change('setSearchDepth')
+        Notification icon='info' iconSize=2 noBorder
+          span -- ${t('library-creator.descriptions.search-depth')}
+      label.LibraryEditor__Settings__Item
+        span -- ${t('library-creator.labels.hierarchy-depth')}
+        input type='number' value=state.hierarchyDepth placeholder=input.library._data.hierarchyDepth on-change('setHierarchyDepth')
+        Notification icon='info' iconSize=2 noBorder
+          span -- ${t('library-creator.descriptions.hierarchy-depth')}
+      label.LibraryEditor__Settings__Item
+        span -- ${t('library-creator.labels.ignore-hidden')}
+        input type='checkbox' checked=state.ignoreHidden placeholder=input.library._data.ignoreHidden on-change('setIgnoreHidden')
+        Notification icon='info' iconSize=2 noBorder
+          span -- ${t('library-creator.descriptions.ignore-hidden')}
+    div.LibraryEditor__Controls
+      button.LibraryEditor__Controls__Button on-click('close') -- ${t('general.labels.close')}
+      button.LibraryEditor__Controls__Button on-click('close', true) -- ${t('general.labels.save-and-close')}
+      button.LibraryEditor__Controls__Button on-click('save') -- ${t('general.labels.apply')}

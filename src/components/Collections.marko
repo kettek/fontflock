@@ -61,20 +61,21 @@ style {
   }
 }
 
-div.Collections class={'-focused': input.focused} on-click(e=>component.emit('focus'))
-  div.Collections__Header
-    span.Collections__Header__Title -- Collections
-    div.Collections__Header__Add on-click('add')
-      Icon icon='add' size=1
-  if(input.collections.length === 0)
-    div.Collections__Info
-      Notification noBorder icon='info' iconSize=2
-        p -- Create a Collection of fonts from System/Installed and Libraries.
-  else
-    div.Collections__Entries
-      for|collection, collectionIndex| of=input.collections
-        div.Collections__Entries__Item key=collectionIndex
-          if(state.editTarget===collectionIndex)
-            input.Collections__Entries__Item__Header value=collection.title on-change('setCollectionEntryTitle', collectionIndex) on-blur('stopEdit')
-          else
-            div.Collections__Entries__Item__Header -- ${collection.title}
+context|{ t }| from='Locale'
+  div.Collections class={'-focused': input.focused} on-click(e=>component.emit('focus'))
+    div.Collections__Header
+      span.Collections__Header__Title -- ${t('collections.labels.title')}
+      div.Collections__Header__Add on-click('add')
+        Icon icon='add' size=1
+    if(input.collections.length === 0)
+      div.Collections__Info
+        Notification noBorder icon='info' iconSize=2
+          p -- ${t('collections.descriptions.create')}
+    else
+      div.Collections__Entries
+        for|collection, collectionIndex| of=input.collections
+          div.Collections__Entries__Item key=collectionIndex
+            if(state.editTarget===collectionIndex)
+              input.Collections__Entries__Item__Header value=collection.title on-change('setCollectionEntryTitle', collectionIndex) on-blur('stopEdit')
+            else
+              div.Collections__Entries__Item__Header -- ${collection.title}

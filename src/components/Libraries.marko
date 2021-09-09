@@ -109,44 +109,45 @@ style {
   }
 }
 
-div.Libraries class={'-focused': input.focused} on-click(e=>component.emit('focus'))
-  div.Libraries__Header
-    span.Libraries__Header__Title -- Libraries
-    div.Libraries__Header__Add on-click('add')
-      Icon icon='add' size=1
-  if(input.libraries.length === 0)
-    div.Libraries__Info
-      Notification noBorder icon='info' iconSize=2
-        p -- Add one or more folders to use as Libraries.
-  else
-      div.Libraries__Entries
-        for|library, libraryIndex| of=input.libraries
-          div.Libraries__Entries__Item key=libraryIndex
-            input.Libraries__Entries__Item__Active type='checkbox' checked=input.selectedLibraries.includes(libraryIndex) on-change(e=>component.emit(e.target.checked?'select':'unselect', libraryIndex))
-            div.Libraries__Entries__Item__Header
-              div.Libraries__Entries__Item__Header__Text -- ${library.title}
-              div.Libraries__Entries__Item__Header__Count
-                if(!library.loaded)
-                  Icon size=1.4 icon='loading' spin
-                else
-                  span -- ${library.files.length}
-              PopupButton hover
-                @button
-                  div.Libraries__Entries__Item__Header__Burger
-                    Icon size=1 icon='burger'
-                @body
-                  div style={cursor: 'pointer'} on-click('editLibrary', library.id) -- edit
-                  div style={cursor: 'pointer'} on-click('rescanLibrary', library.id) -- rescan
-                  div style={cursor: 'pointer'} on-click('deleteLibrary', library.id) -- delete
-if(state.showAddDialog)
-  FloatingWindow on-close('closeAddDialog')
-    @title
-      span -- Add Libraries
-    @body
-      LibraryCreator on-close('closeAddDialog') on-create('createLibrary') directories=state.pendingDirectories
-if(state.showEditDialog)
-  FloatingWindow on-close('closeEditDialog')
-    @title
-      span -- Edit Library
-    @body
-      LibraryEditor on-close('closeEditDialog') library=input.libraries.find(l=>l.id===state.editLibraryID)
+context|{ t }| from='Locale'
+  div.Libraries class={'-focused': input.focused} on-click(e=>component.emit('focus'))
+    div.Libraries__Header
+      span.Libraries__Header__Title -- ${t('libraries.labels.title')}
+      div.Libraries__Header__Add on-click('add')
+        Icon icon='add' size=1
+    if(input.libraries.length === 0)
+      div.Libraries__Info
+        Notification noBorder icon='info' iconSize=2
+          p -- ${t('libraries.descriptions.add-folders')}
+    else
+        div.Libraries__Entries
+          for|library, libraryIndex| of=input.libraries
+            div.Libraries__Entries__Item key=libraryIndex
+              input.Libraries__Entries__Item__Active type='checkbox' checked=input.selectedLibraries.includes(libraryIndex) on-change(e=>component.emit(e.target.checked?'select':'unselect', libraryIndex))
+              div.Libraries__Entries__Item__Header
+                div.Libraries__Entries__Item__Header__Text -- ${library.title}
+                div.Libraries__Entries__Item__Header__Count
+                  if(!library.loaded)
+                    Icon size=1.4 icon='loading' spin
+                  else
+                    span -- ${library.files.length}
+                PopupButton hover
+                  @button
+                    div.Libraries__Entries__Item__Header__Burger
+                      Icon size=1 icon='burger'
+                  @body
+                    div style={cursor: 'pointer'} on-click('editLibrary', library.id) -- ${t('libraries.labels.edit')}
+                    div style={cursor: 'pointer'} on-click('rescanLibrary', library.id) -- ${t('libraries.labels.rescan')}
+                    div style={cursor: 'pointer'} on-click('deleteLibrary', library.id) -- ${t('libraries.labels.delete')}
+  if(state.showAddDialog)
+    FloatingWindow on-close('closeAddDialog')
+      @title
+        span -- ${t('libraries.labels.add-libraries')}
+      @body
+        LibraryCreator on-close('closeAddDialog') on-create('createLibrary') directories=state.pendingDirectories
+  if(state.showEditDialog)
+    FloatingWindow on-close('closeEditDialog')
+      @title
+        span -- ${t('libraries.labels.edit-library')}
+      @body
+        LibraryEditor on-close('closeEditDialog') library=input.libraries.find(l=>l.id===state.editLibraryID)

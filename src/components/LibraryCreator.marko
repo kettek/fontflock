@@ -83,39 +83,40 @@ style {
   }
 }
 
-div.LibraryCreator
-  div.LibraryCreator__Info
-    Notification icon='info'
-      p -- A Library points to a folder on your computer to look for fonts within. Each Library can be configured to behave a bit differently in how deep font searching goes and how the Library's hierarchy is presented.
-  div.LibraryCreator__Settings
-    div
-      table
-        tr
-          th -- &nbsp;
-          th -- Library Title
-          th -- &nbsp;
-          th -- Target Folder
-          th -- Ignore Hidden
-        for|folder, folderIndex| of=input.directories
+context|{ t }| from='Locale'
+  div.LibraryCreator
+    div.LibraryCreator__Info
+      Notification icon='info'
+        p -- ${t('libraries.descriptions.library')}
+    div.LibraryCreator__Settings
+      div
+        table
           tr
-            td
-              input type='checkbox' checked=state.shouldAdd[folderIndex] on-change('setLibraryAdd', folderIndex)
-            td
-              input value=state.titles[folderIndex] on-change('setLibraryName', folderIndex)
-            td -- >
-            td -- ${folder}
-            td
-              input type='checkbox' checked=state.shouldIgnoreHidden[folderIndex] on-change('setIgnoreHidden', folderIndex)
-    label.LibraryCreator__Settings__Item
-      span -- Search Depth
-      input type='number' value=state.searchDepth placeholder='-1' on-change('setSearchDepth')
-      Notification icon='info' iconSize=2 noBorder
-        span -- How many folders deep should fonts be searched for. -1 for the full folder depth.
-    label.LibraryCreator__Settings__Item
-      span -- Hierarchy Depth
-      input type='number' value=state.hierarchyDepth placeholder='0' on-change('setHierarchyDepth')
-      Notification icon='info' iconSize=2 noBorder
-        span -- How many folders should be presented. 0 for full folder structure, 1 for only the single folder.
-  div.LibraryCreator__Controls
-    button.LibraryCreator__Controls__Button on-click('close') -- Cancel
-    button.LibraryCreator__Controls__Button on-click('add') -- Add
+            th -- &nbsp;
+            th -- ${t('library-creator.labels.library-title')}
+            th -- &nbsp;
+            th -- ${t('library-creator.labels.target-folder')}
+            th -- ${t('library-creator.labels.ignore-hidden')}
+          for|folder, folderIndex| of=input.directories
+            tr
+              td
+                input type='checkbox' checked=state.shouldAdd[folderIndex] on-change('setLibraryAdd', folderIndex)
+              td
+                input value=state.titles[folderIndex] on-change('setLibraryName', folderIndex)
+              td -- >
+              td -- ${folder}
+              td
+                input type='checkbox' checked=state.shouldIgnoreHidden[folderIndex] on-change('setIgnoreHidden', folderIndex)
+      label.LibraryCreator__Settings__Item
+        span -- ${t('library-creator.labels.search-depth')}
+        input type='number' value=state.searchDepth placeholder='-1' on-change('setSearchDepth')
+        Notification icon='info' iconSize=2 noBorder
+          span -- ${t('library-creator.descriptions.search-depth')}
+      label.LibraryCreator__Settings__Item
+        span -- ${t('library-creator.labels.hierarchy-depth')}
+        input type='number' value=state.hierarchyDepth placeholder='0' on-change('setHierarchyDepth')
+        Notification icon='info' iconSize=2 noBorder
+          span -- ${t('library-creator.descriptions.hierarchy-depth')}
+    div.LibraryCreator__Controls
+      button.LibraryCreator__Controls__Button on-click('close') -- ${t('general.labels.cancel')}
+      button.LibraryCreator__Controls__Button on-click('add') -- ${t('general.labels.add')}

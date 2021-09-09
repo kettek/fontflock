@@ -5,6 +5,8 @@ general.labels.apply: Apply
 general.labels.save: Save
 general.labels.close: Close
 general.labels.cancel: Cancel
+general.labels.add: Add
+general.labels.create: Create
 general.labels.save-and-close: Save & Close
 # Configuration
 config.labels.title: Configuration
@@ -15,8 +17,46 @@ workspace.labels.title: Workspace
 workspace.labels.create: Create a Workspace
 workspace.labels.open: Open a Workspace
 workspace.labels.edit: Edit Workspace
-workspace.description: Workspaces store library, collections, and more.
+workspace.descriptions.workspace: Workspaces store library, collections, and more.
+## Workspace Creator
+workspace-creator.descriptions.workspace: A Workspace is a portable configuration file that stores libraries, collections, and settings.
+workspace-creator.descriptions.workspace-extra: Any changes made to a Workspace are automatically saved while you work. The most recently opened Workspace will be restored whenever FontFlock is opened.
+workspace-creator.labels.title: Title
+workspace-creator.labels.title-placeholder: My Workspace
 ## Workspace Editor
 workspace-editor.labels.title: Title
 # System Fonts
 system-fonts.labels.loading: Loading System Fonts...
+# Collections
+collections.labels.title: Collections
+collections.descriptions.create: Create a Collection of fonts from System Fonts and Libraries.
+# FontGroup
+font-group.labels.loading: loading...
+font-group.labels.unloaded: unloaded
+# Libraries
+libraries.labels.title: Libraries
+libraries.labels.edit: edit
+libraries.labels.rescan: rescan
+libraries.labels.delete: delete
+libraries.labels.add-libraries: Add Libraries
+libraries.labels.edit-library: Edit Library
+libraries.descriptions.library: A Library points to a folder on your computer to look for fonts within. Each Library can be configured to behave a bit differently in how deep font searching goes and how the Library's hierarchy is presented.
+libraries.descriptions.add-folders: Add one more more folders to use as Libraries.
+libraries.descriptions.no-results: No results
+## Library Creator
+library-creator.descriptions.search-depth: How many folders deep should fonts be searched for. -1 for the full folder depth.
+library-creator.descriptions.hierarchy-depth: How many folders should be presented. 0 for full folder structure, 1 for only the single folder.
+library-creator.descriptions.ignore-hidden: Whether or not files and folders that are hidden should be ignored.
+library-creator.labels.library-title: Library Title
+library-creator.labels.target-folder: Target Folder
+library-creator.labels.ignore-hidden: Ignore Hidden Files & Folders
+library-creator.labels.search-depth: Search Depth
+library-creator.labels.hierarchy-depth: Hierarchy Depth
+## Library Editor
+library-editor.labels.title: Title
+library-editor.descriptions.title: The title of the library as presented in the application.
+# System Fonts
+system-fonts.labels.installed: Installed
+system-fonts.labels.example-text: Example Text
+system-fonts.labels.info: Info
+system-fonts.labels.controls: Controls

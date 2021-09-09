@@ -62,15 +62,16 @@ style {
   }
 }
 
-div.WorkspaceCreator
-  div.WorkspaceCreator__Info
-    Notification icon='info'
-      p -- A Workspace is a portable configuration file that stores libraries, collections, and settings.
-      p -- Any changes made to a Workspace are automatically saved while you work. The most recently opened Workspace will be restored whenever FontFlock is opened.
-  div.WorkspaceCreator__Settings
-    label.WorkspaceCreator__Settings__Item
-      span -- Title
-      input value=state.workspaceTitle placeholder='My Workspace' on-change('setTitle')
-  div.WorkspaceCreator__Controls
-    button.WorkspaceCreator__Controls__Button on-click('close') -- Cancel
-    button.WorkspaceCreator__Controls__Button on-click('create') -- Create...
+context|{ t }| from='Locale'
+  div.WorkspaceCreator
+    div.WorkspaceCreator__Info
+      Notification icon='info'
+        p -- ${t('workspace-creator.descriptions.workspace')}
+        p -- ${t('workspace-creator.descriptions.workspace-extra')}
+    div.WorkspaceCreator__Settings
+      label.WorkspaceCreator__Settings__Item
+        span -- ${t('workspace-creator.labels.title')}
+        input value=state.workspaceTitle placeholder=t('workspace-creator.labels.title-placeholder') on-change('setTitle')
+    div.WorkspaceCreator__Controls
+      button.WorkspaceCreator__Controls__Button on-click('close') -- ${t('general.labels.cancel')}
+      button.WorkspaceCreator__Controls__Button on-click('create') -- ${t('general.labels.create')}...
