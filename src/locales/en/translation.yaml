@@ -1,6 +1,7 @@
 # General
-general.labels.loading: Loading
+general.labels.loading: Loading...
 general.labels.confirm: Okay
+general.labels.apply: Apply
 general.labels.save: Save
 general.labels.close: Close
 general.labels.cancel: Cancel
@@ -15,5 +16,7 @@ workspace.labels.create: Create a Workspace
 workspace.labels.open: Open a Workspace
 workspace.labels.edit: Edit Workspace
 workspace.description: Workspaces store library, collections, and more.
+## Workspace Editor
+workspace-editor.labels.title: Title
 # System Fonts
-system-fonts.labels.loading: Loading System Fonts
+system-fonts.labels.loading: Loading System Fonts...
