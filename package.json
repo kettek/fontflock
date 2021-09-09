@@ -26,6 +26,7 @@
         "gulp-shell": "^0.8.0",
         "gulp-uglify": "^3.0.2",
         "hexoid": "^1.0.0",
+        "i18next-fs-backend": "^1.1.1",
         "marko": "^4.23.9",
         "marko-loader": "^1.5.0",
         "nan": "^2.14.2",
@@ -47,6 +48,8 @@
         }
     },
     "dependencies": {
-        "fontmanager-redux": "^0.4.0"
+        "@marko-tags/context": "^2.2.2",
+        "fontmanager-redux": "^0.4.0",
+        "i18next": "^20.6.1"
     }
 }

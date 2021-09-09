@@ -57,6 +57,14 @@ gulp.task('copy-assets', () => {
 })
 
 /**
+ * Copy locales
+ */
+gulp.task('copy-locales', () => {
+	return gulp.src('src/locales/**/*')
+		.pipe(gulp.dest('build/locales/'))
+})
+
+/**
  * Ecex compile tasks
  */
 gulp.task('compile', gulp.parallel('compile-marko'))
@@ -64,7 +72,7 @@ gulp.task('compile', gulp.parallel('compile-marko'))
 /**
  * Ecex copy tasks
  */
-gulp.task('copy', gulp.parallel('copy-js', 'copy-electron-js', 'copy-html', 'copy-assets'))
+gulp.task('copy', gulp.parallel('copy-js', 'copy-electron-js', 'copy-html', 'copy-assets', 'copy-locales'))
 
 /**
  * Compile App to /build
@@ -106,6 +114,7 @@ if (process.platform === 'win32') {
  */
 gulp.task('watch', done => {
 	gulp.watch('src/assets/**/*', gulp.series('copy-assets'))
+	gulp.watch('src/locales/**/*', gulp.series('copy-locales'))
 	gulp.watch('src/components/**/*', gulp.series('compile-marko'))
 	gulp.watch('src/views/**/*', gulp.series('compile-marko'))
 	gulp.watch('src/models/**/*', gulp.series('compile-marko'))
