@@ -20,16 +20,17 @@ class {
   }
 }
 
-div.WorkspaceEditor
-  div.WorkspaceEditor__Info
-  div.WorkspaceEditor__Settings
-    label.WorkspaceEditor__Settings__Item
-      span -- Title
-      input value=state.workspaceTitle placeholder=input.workspace.title on-change('setTitle')
-  div.WorkspaceEditor__Controls
-    button.WorkspaceEditor__Controls__Button on-click('close') -- Close
-    button.WorkspaceEditor__Controls__Button on-click('close', true) -- Save & Close
-    button.WorkspaceEditor__Controls__Button on-click('apply') -- Apply
+context|{ t }| from='Locale'
+  div.WorkspaceEditor
+    div.WorkspaceEditor__Info
+    div.WorkspaceEditor__Settings
+      label.WorkspaceEditor__Settings__Item
+        span -- ${t('workspace-editor.labels.title')}
+        input value=state.workspaceTitle placeholder=input.workspace.title on-change('setTitle')
+    div.WorkspaceEditor__Controls
+      button.WorkspaceEditor__Controls__Button on-click('close') -- ${t('general.labels.close')}
+      button.WorkspaceEditor__Controls__Button on-click('close', true) -- ${t('general.labels.save-and-close')}
+      button.WorkspaceEditor__Controls__Button on-click('apply') -- ${t('general.labels.apply')}
 
 style {
   .WorkspaceEditor__Info {
