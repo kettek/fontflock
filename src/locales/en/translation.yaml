@@ -1,0 +1,19 @@
+# General
+general.labels.loading: Loading
+general.labels.confirm: Okay
+general.labels.save: Save
+general.labels.close: Close
+general.labels.cancel: Cancel
+general.labels.save-and-close: Save & Close
+# Configuration
+config.labels.title: Configuration
+# Global Configuration
+global-config.labels.title: Global Configuration
+# Workspace
+workspace.labels.title: Workspace
+workspace.labels.create: Create a Workspace
+workspace.labels.open: Open a Workspace
+workspace.labels.edit: Edit Workspace
+workspace.description: Workspaces store library, collections, and more.
+# System Fonts
+system-fonts.labels.loading: Loading System Fonts
