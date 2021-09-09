@@ -27,7 +27,7 @@ class FontErrorWatcher extends EventEmitter {
         } else {
           if (message.startsWith("Failed to decode downloaded font: ")) {
             awaitingPair = true
-            fontPath = path.normalize(message.slice("Failed to decode downloaded font: file:///".length))
+            fontPath = path.normalize(decodeURIComponent(message.slice("Failed to decode downloaded font: file:///".length)))
           }
         }
       }
