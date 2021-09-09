@@ -4,7 +4,6 @@ import * as path from 'path'
 import { remote, shell } from 'electron'
 import * as fontManager from '../../build/fontmanager.node'
 import * as _Config from '../models/_Config'
-import _Locale from 'models/_Locale'
 
 import SystemFonts from 'models/_SystemFonts'
 import Workspace from 'models/Workspace'
@@ -330,61 +329,63 @@ style {
   }
 }
 
-Titlebar title='fontflock'
-  @menu
-    if(state.workspace)
-      div.Titlebar__Controls__Button on-click('showWorkspaceEditor') -- ${state.workspace.title}...
-    else
-      div.Titlebar__Controls__ButtonG -- Workspace...
-    div.Titlebar__Controls__Button on-click('showConfigEditor') -- Configuration
-div.Main
-  div.Main__Left
-    if(state.isLoadingSystemFontStores)
-      div.WorkspaceNotifier
-        div.WorkspaceNotifier__Content
-          div -- Loading System Fonts...
-    else
-      SystemFonts fontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores on-select('onSelectedSystemFontStore') on-unselect('onUnselectedSystemFontStore') on-focus('focusSection', 'systemFonts') focused=state.focusedSection==='systemFonts'
-    if(state.isLoading)
-      div.WorkspaceNotifier
-        div.WorkspaceNotifier__Content
-          div -- Loading...
-    else-if(!state.workspace)
-      div.WorkspaceNotifier
-        div.WorkspaceNotifier__Content
-          button.WorkspaceNotifier__Button on-click('showWorkspaceCreator') -- Create a Workspace
-          button.WorkspaceNotifier__Button on-click('openWorkspace') -- Open a Workspace
-          div -- Workspaces store libraries, collections, and more.
-    else
-      Libraries libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate on-create('createLibraries') on-delete('deleteLibraries') on-select('selectLibrary') on-unselect('unselectLibrary') on-focus('focusSection', 'libraries') focused=state.focusedSection==='libraries'
-      Collections collections=state.workspace.collections update=state.collectionsUpdate on-focus('focusSection', 'collections') focused=state.focusedSection==='collections'
-  div.Main__Right style={
-    '--preview-foreground-color': state.foregroundColor,
-    '--preview-background-color': state.backgroundColor,
-    '--preview-font-size': state.fontSize+state.fontSizeUnits,
-  }
-    PreviewSettings previewText=state.text fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits foregroundColor=state.foregroundColor backgroundColor=state.backgroundColor on-change-text('setText') on-change-size('setSize') on-change-units('setUnits') on-change-foreground('setForeground') on-change-background('setBackground') on-swap-colors('swapColors')
-    if(state.focusedSection === 'systemFonts')
-      SystemFontsView previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage scrollDelay=state.scrollDelay
-    else-if(state.focusedSection === 'libraries')
-      LibrariesView previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate scrollDelay=state.scrollDelay
-    else-if(state.focusedSection === 'collections')
-      CollectionsView previewText=state.text workspace=state.workspace collections=state.selectedCollections scrollDelay=state.scrollDelay
-  if(state.isCreating)
-    FloatingWindow on-close('closeWorkspaceCreator')
-      @title
-        span -- Create a Workspace
-      @body
-        WorkspaceCreator on-close('closeWorkspaceCreator') on-create('createWorkspace')
-  if(state.isEditing)
-    FloatingWindow on-close('closeWorkspaceEditor')
-      @title
-        span -- Edit Workspace
-      @body
-        WorkspaceEditor workspace=state.workspace on-close('closeWorkspaceEditor')
-  if(state.showConfig)
-    FloatingWindow on-close('closeConfigEditor')
-      @title
-        span -- Global Configuration
-      @body
-        ConfigurationEditor
+Locale
+  context|{ t }| from='Locale'
+    Titlebar title='fontflock'
+      @menu
+        if(state.workspace)
+          div.Titlebar__Controls__Button on-click('showWorkspaceEditor') -- ${state.workspace.title}...
+        else
+          div.Titlebar__Controls__ButtonG -- ${t('config.labels.title')}...
+        div.Titlebar__Controls__Button on-click('showConfigEditor') -- ${t('config.labels.title')}
+    div.Main
+      div.Main__Left
+        if(state.isLoadingSystemFontStores)
+          div.WorkspaceNotifier
+            div.WorkspaceNotifier__Content
+              div -- ${t('system-fonts.labels.loading')}
+        else
+          SystemFonts fontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores on-select('onSelectedSystemFontStore') on-unselect('onUnselectedSystemFontStore') on-focus('focusSection', 'systemFonts') focused=state.focusedSection==='systemFonts'
+        if(state.isLoading)
+          div.WorkspaceNotifier
+            div.WorkspaceNotifier__Content
+              div -- ${t('general.labels.loading')}
+        else-if(!state.workspace)
+          div.WorkspaceNotifier
+            div.WorkspaceNotifier__Content
+              button.WorkspaceNotifier__Button on-click('showWorkspaceCreator') -- ${t('workspace.labels.create')}
+              button.WorkspaceNotifier__Button on-click('openWorkspace') -- ${t('workspace.labels.open')}
+              div -- ${t('workspace.labels.description')}
+        else
+          Libraries libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate on-create('createLibraries') on-delete('deleteLibraries') on-select('selectLibrary') on-unselect('unselectLibrary') on-focus('focusSection', 'libraries') focused=state.focusedSection==='libraries'
+          Collections collections=state.workspace.collections update=state.collectionsUpdate on-focus('focusSection', 'collections') focused=state.focusedSection==='collections'
+      div.Main__Right style={
+        '--preview-foreground-color': state.foregroundColor,
+        '--preview-background-color': state.backgroundColor,
+        '--preview-font-size': state.fontSize+state.fontSizeUnits,
+      }
+        PreviewSettings previewText=state.text fontSize=state.fontSize fontSizeUnits=state.fontSizeUnits foregroundColor=state.foregroundColor backgroundColor=state.backgroundColor on-change-text('setText') on-change-size('setSize') on-change-units('setUnits') on-change-foreground('setForeground') on-change-background('setBackground') on-swap-colors('swapColors')
+        if(state.focusedSection === 'systemFonts')
+          SystemFontsView previewText=state.text workspace=state.workspace systemFontStores=state.systemFontStores selectedSystemFontStores=state.selectedSystemFontStores entriesPerPage=state.entriesPerPage scrollDelay=state.scrollDelay
+        else-if(state.focusedSection === 'libraries')
+          LibrariesView previewText=state.text workspace=state.workspace libraries=state.workspace.libraries selectedLibraries=state.selectedLibraries update=state.librariesUpdate scrollDelay=state.scrollDelay
+        else-if(state.focusedSection === 'collections')
+          CollectionsView previewText=state.text workspace=state.workspace collections=state.selectedCollections scrollDelay=state.scrollDelay
+      if(state.isCreating)
+        FloatingWindow on-close('closeWorkspaceCreator')
+          @title
+            span -- ${t('workspace.labels.create')}
+          @body
+            WorkspaceCreator on-close('closeWorkspaceCreator') on-create('createWorkspace')
+      if(state.isEditing)
+        FloatingWindow on-close('closeWorkspaceEditor')
+          @title
+            span -- ${t('workspace.labels.edit')}
+          @body
+            WorkspaceEditor workspace=state.workspace on-close('closeWorkspaceEditor')
+      if(state.showConfig)
+        FloatingWindow on-close('closeConfigEditor')
+          @title
+            span -- ${t('global-config.labels.title')}
+          @body
+            ConfigurationEditor
