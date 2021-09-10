@@ -327,6 +327,25 @@ style {
     padding: .5em;
     margin: .5em;
   }
+  ::-webkit-scrollbar {
+    height: .75em;
+    width: .75em;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: var(--list-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--list-fg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--list2-fg);
+  }
+  ::-webkit-scrollbar-thumb:vertical {
+    min-height: 1.5em;
+  }
+  ::-webkit-scrollbar-thumb:horizontal {
+    min-width: 1.5em;
+  }
 }
 
 Locale
