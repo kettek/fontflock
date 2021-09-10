@@ -10,6 +10,7 @@ import path from 'path'
 class FontErrorWatcher extends EventEmitter {
   constructor() {
     super()
+    this.setMaxListeners(Infinity)
     let wc = electron.remote.getCurrentWebContents()
     let awaitingPair = false
     let fontPath = ''
